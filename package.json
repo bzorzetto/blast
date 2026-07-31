@@ -1,0 +1,31 @@
+{
+  "name": "blast",
+  "version": "0.1.0",
+  "description": "Bruno Live Automation SofTware",
+  "keywords": [
+    "Midi",
+    "Bose",
+    "Vmix",
+    "Mediaout",
+    "Automation"
+  ],
+  "homepage": "https://github.com/bzorzetto/blast#readme",
+  "bugs": {
+    "url": "https://github.com/bzorzetto/blast/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bzorzetto/blast.git"
+  },
+  "license": "ISC",
+  "author": "Bruno Zorzetto",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "start": "node --force-node-api-uncaught-exceptions-policy=true app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "jzz": "^1.9.6"
+  }
+}
