@@ -1,1 +1,14 @@
+# Ignore dependencies
 node_modules/
+vendor/
+
+# Ignore log files
+*.log
+dist/
+build/
+.DS_Store
+Thumbs.db
+
+# Ignore envinoment files
+.env
+config.json
