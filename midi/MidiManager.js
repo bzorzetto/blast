@@ -91,7 +91,7 @@ class MidiManager extends EventEmitter {
 
                 this.emit("noteoff",{
 
-                    devive:deviceName,
+                    device:deviceName,
 
                     channel,
 
@@ -105,7 +105,7 @@ class MidiManager extends EventEmitter {
 
                 this.emit("cc",{
 
-                    devive:deviceName,
+                    device:deviceName,
 
                     channel,
 

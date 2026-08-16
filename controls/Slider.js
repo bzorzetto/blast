@@ -10,13 +10,14 @@ class Slider{
 
     setValue(value){
 
-        this.value = value;
-
-        
-
+        this.value = value;  
     }
 
-    
+    getValue(){
+
+        return this.value;
+        
+    }
 }
 
 module.exports=Slider;

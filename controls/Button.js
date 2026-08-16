@@ -6,18 +6,32 @@ class Button{
         this.vmixChannel=config.vmixChannel;
         this.boseChannel=config.boseChannel;
         this.mediaoutCommand=config.mediaOutCommand;
+        this.buttonActions=config.buttonActions || {};
         this.value = 0;
     }
 
     setValue(value){
 
         this.value = value;
+    }
 
-        
+    getValue(){
+
+        return this.value;
 
     }
 
-    
+    getMediaoutCommand(){
+
+        return this.mediaoutCommand;
+
+    }
+
+    getButtonActions(){
+
+        return this.buttonActions;
+
+    }
 }
 
 module.exports = Button;

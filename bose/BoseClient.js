@@ -57,6 +57,27 @@ class BoseClient extends EventEmitter {
 
     }
 
+    doCommand(command) {
+
+        if(!this.connected)
+            return;
+
+        switch(command.type) {
+
+            case "MUTE_CHANNEL":
+                this.mute(command.input);
+                break;
+
+            case "UNMUTE_CHANNEL":
+                this.unmute(command.input);
+                break;
+                
+            default:
+                console.log("Bose Client: Unknown command type: " + command.type);
+                break;
+        }
+    }
+
     send(command){
 
         if(!this.connected)
