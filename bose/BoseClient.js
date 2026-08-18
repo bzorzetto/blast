@@ -71,7 +71,11 @@ class BoseClient extends EventEmitter {
             case "UNMUTE_CHANNEL":
                 this.unmute(command.input);
                 break;
-                
+
+            case "TOGGLE_MUTE_CHANNEL":
+                this.toggleMute(command.input);
+                break;
+
             default:
                 console.log("Bose Client: Unknown command type: " + command.type);
                 break;
@@ -79,31 +83,26 @@ class BoseClient extends EventEmitter {
     }
 
     send(command){
-
         if(!this.connected)
             return;
 
         this.socket.write(command+"\r");
-
     }
 
     setGain(channel,value){
-
         this.send(`SA "GainCH${channel}">1=${value}`);
-        //console.log(`SA "GainCH${channel}">1=${value}`);
-
     }
 
     mute(channel){
-
         this.send(`SA "GainCH${channel}">2=O`);
-
     }
 
     unmute(channel){
+        this.send(`SA "GainCH${channel}">2=F`);
+    }
 
-        this.send(`SA "GainCH${channel}">2=R`);
-
+    toggleMute(channel){
+        this.send(`SA "GainCH${channel}">2=T`);
     }
 
 }

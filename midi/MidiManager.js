@@ -126,6 +126,24 @@ class MidiManager extends EventEmitter {
        this.outputs[device].send(data);
 
     }
+
+    findInput(name) {
+
+       const inputs = this.engine.info().inputs;
+
+       return inputs.find(
+          device => device.name === name
+       );
+    }
+
+    findOutput(name) {
+
+       const outputs = this.engine.info().outputs;
+
+       return outputs.find(
+          device => device.name === name
+       );
+    }
 }
 
 
