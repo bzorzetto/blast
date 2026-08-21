@@ -102,7 +102,7 @@ midi.openOutput(output.name);
 // Connect to remote hosts //
 // ------------------------//
 
-const vmix = new VmixClient(config.hosts.vmix.host, config.hosts.vmix.port);
+const vmix = new VmixClient(config.hosts.vmix.host, config.hosts.vmix.apiPort, config.hosts.vmix.webPort);
 const bose = new BoseClient(config.hosts.bose.host, config.hosts.bose.port);
 const mediaout = new MediaoutClient(config.hosts.mediaout.host, config.hosts.mediaout.portTx, config.hosts.mediaout.portRx);
 
@@ -113,6 +113,8 @@ mediaout.connect();
 // ------------------------//
 // Add midi controls       //
 // ------------------------//
+
+// Aggiungo gli slider definiti nel file di configurazione
 Object.keys(config.sliders).forEach(sliderId => {
     const sliderConfig = config.sliders[sliderId];
     //console.log(config.sliders[sliderId]);
@@ -124,59 +126,33 @@ Object.keys(config.sliders).forEach(sliderId => {
     midi.addControl(slider);
 });
 
+// Aggiungo i pulsanti definiti nel file di configurazione
 Object.keys(config.buttons).forEach(buttonId => {
+
     const buttonConfig = config.buttons[buttonId];
-    //console.log(config.buttons[buttonId]);
+    
+    // Prepara le azioni del pulsante
+    const buttonActions = {
+        vmix: buttonConfig.vmix?.function,
+        bose: buttonConfig.bose?.function
+    };
+
+    if (buttonConfig.mediaout?.function) {
+        buttonActions.mediaout =
+        MediaoutCommand.fromString(buttonConfig.mediaout.function);
+    }
+
     const button = new Button({
+
         midiNote: buttonConfig.midiNote,
-        vmixChannel: buttonConfig.vmix.input,
-        boseChannel: buttonConfig.bose.channel,
-        buttonActions: {
-            mediaout: MediaoutCommand.fromString(buttonConfig.mediaout.function),
-            vmix: buttonConfig.vmix.function,
-            bose: buttonConfig.bose.function
-        }
+        vmixChannel: buttonConfig.vmix?.input,
+        boseChannel: buttonConfig.bose?.channel,
+        buttonActions
     });
     midi.addControl(button);
 });
 
-//const slider1 = new Slider({
-//   midiCC:19,
-//   vmixChannel:1,
-//   boseChannel:1
-//});
 
-//midi.addControl(slider1);
-
-// MEDIA OUT BUTTONS ///
-//const button1 = new Button({
-//   midiNote:1,
-//   vmixChannel:1,
-//   boseChannel:1,
-//   buttonActions: {mediaout: MediaoutCommand.CUE, vmix: "TOGGLE_MUTE_CHANNEL", bose: "TOGGLE_MUTE_CHANNEL"}   
-//});
-
-//midi.addControl(button1);
-
-//const button2 = new Button({
-//   midiNote:4,
-//   boseChannel:1,
-//   buttonActions: {mediaout: MediaoutCommand.PLAY, vmix: "UNMUTE_CHANNEL", bose: "UNMUTE_CHANNEL"}
-//});
-
-//midi.addControl(button2);
-
-//const button3 = new Button({
-//   midiNote:7,
-//   boseChannel:1,
-//   buttonActions: {mediaout: MediaoutCommand.STOP, vmix: "MUTE_CHANNEL", bose: "MUTE_CHANNEL"}
-//});
-
-//midi.addControl(button3);
-
-//midi.controls.forEach(control => {
-//    console.log("Control added: ", control);
-//});
 
 // -----------------//
 // Operate controls //
@@ -195,13 +171,6 @@ midi.on("cc", msg => {
         }
     });
 
-    //if (msg.controller === slider1.midiCC) {
-    //    slider1.setValue(msg.value);
-    //    const boseValue = AudioConverter.midiToBose(slider1.value);
-    //    const vmixValue = AudioConverter.midiToVmix(slider1.value);
-    //    bose.setGain(slider1.boseChannel, boseValue);
-    //    vmix.setVolume(slider1.vmixChannel, vmixValue);
-    //}
 });
 
 midi.on("noteon", msg => {
@@ -211,7 +180,7 @@ midi.on("noteon", msg => {
     midi.controls.forEach(control => {
        if (control instanceof Button && msg.note === control.midiNote) {
            control.setValue(msg.value);
-           midi.send("MIDI Mix",[0x90, control.midiNote, 127]);
+           midi.send(config.midi.output, [0x90, control.midiNote, 127]);
            Object.keys(control.getButtonActions()).forEach(action => {
                if (action === "mediaout") {
                    mediaout.send(control.getButtonActions()[action]);
@@ -224,51 +193,65 @@ midi.on("noteon", msg => {
        }
     });
 
-    //if (msg.note === button1.midiNote) {
-    //    button1.setValue(msg.value);
-    //    midi.send("MIDI Mix",[0x90, button1.midiNote, 127]);
-    //    //button1.getButtonActions().mediaout ? mediaout.send(button1.getButtonActions().mediaout) : null;
-    //    //button1.getButtonActions().vmix ? vmix.doCommand({type: button1.getButtonActions().vmix, input: button1.vmixChannel}) : null;
-    //    Object.keys(button1.getButtonActions()).forEach(action => {
-    //        if (action === "mediaout") {
-    //            mediaout.send(button1.getButtonActions()[action]);
-    //        } else if (action === "vmix") {
-    //            vmix.doCommand({type: button1.getButtonActions()[action], input: button1.vmixChannel});
-    //        } else if (action === "bose") {
-    //            bose.doCommand({type: button1.getButtonActions()[action], input: button1.boseChannel});
-    //        }
-    //    });
-    //}
-            
-    
-
 });
 
 midi.on('noteoff', msg => {
 
    if (debug) {console.log(msg)};
-   midi.controls.forEach(control => {
-       if (control instanceof Button && msg.note === control.midiNote) {
-           control.setValue(msg.value);
-           midi.send("MIDI Mix",[0x90, control.midiNote, 0]);
-       }
-    });
-   //if (msg.note === button1.midiNote) {
-   //     button1.setValue(msg.value);
-   //     midi.send("MIDI Mix",[0x90, button1.midiNote, 0]);
-   // }
+   //midi.controls.forEach(control => {
+   //    if (control instanceof Button && msg.note === control.midiNote) {
+   //        control.setValue(msg.value);
+   //        midi.send("MIDI Mix",[0x90, control.midiNote, 0]);
+   //    }
+   // });
 });
 
 mediaout.on("message", msg => {
 
     if (debug > 2) {console.log("Messaggio UDP :", msg)};
     
+});
 
+// Elabora i feedback da vMix
+vmix.on("status", status => {
+    
+    const inputs = status.vmix.inputs.input;
+
+    midi.controls.forEach(control => {
+
+        if (!(control instanceof Button))
+            return;
+
+        if (control.vmixChannel === undefined)
+            return;
+
+        const input = inputs.find(
+            input => input.number === String(control.vmixChannel)
+        );
+
+        if (!input)
+            return;
+
+        const muted = input.muted === "True";
+
+        if (!muted) {
+            midi.send(config.midi.output, [0x90, control.midiNote, 0]);
+        } else {
+            midi.send(config.midi.output, [0x90, control.midiNote, 127]);
+        }
+        control.setState(muted);
+
+    });
+    
 });
 
 // Send Alive message every 2Sec to mediaout to keep connetion active
 setInterval(() => {
     mediaout.send(MediaoutCommand.ALIVE);
 }, 2000);
+
+setInterval(() => {
+    vmix.updateStatus();
+}, 500);
 
 console.log("System started.");

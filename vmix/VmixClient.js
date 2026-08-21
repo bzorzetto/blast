@@ -1,17 +1,72 @@
 const net = require('net');
+const http = require('http');
 const EventEmitter = require('events');
-
+const { XMLParser } = require('fast-xml-parser');
+const xmlParser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: ""
+});
 class VmixClient extends EventEmitter {
 
-    constructor(host, port) {
+    constructor(host, apiPort, webPort) {
 
         super();
 
         this.host = host;
-        this.port = port;
+        this.apiPort = apiPort;
+        this.webPort = webPort; 
 
         this.socket = null;
         this.connected = false;
+
+    }
+
+    async getStatus() {
+
+            return new Promise((resolve, reject) => {
+
+            http.get(`http://${this.host}:${this.webPort}/api/`, res => {
+
+                let xml = "";
+
+                res.on("data", chunk => {
+                    xml += chunk;
+                });
+                res.on("end", () => {
+                    try {
+                        const data = xmlParser.parse(xml);
+                        resolve(data);
+                    }
+                    catch(err) {
+                        reject(err);
+                    }
+                });
+            }).on("error", reject);
+        });
+    }
+
+    async updateStatus() {
+
+        const status = await this.getStatus();
+        
+        let inputs;
+
+        if (Array.isArray(status.vmix.inputs)) {
+
+            inputs = Object.fromEntries(
+                status.vmix.inputs.map(input => [
+                    input.number,
+                    input
+                ])
+            );
+
+        } else {
+
+            inputs = status.vmix.inputs;
+
+        }
+
+        this.emit("status", status);
 
     }
 
@@ -19,7 +74,7 @@ class VmixClient extends EventEmitter {
 
         this.socket = new net.Socket();
 
-        this.socket.connect(this.port, this.host);
+        this.socket.connect(this.apiPort, this.host);
 
         this.socket.on('connect', () => {
 

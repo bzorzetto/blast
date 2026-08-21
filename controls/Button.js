@@ -8,11 +8,18 @@ class Button{
         this.mediaoutCommand=config.mediaOutCommand;
         this.buttonActions=config.buttonActions || {};
         this.value = 0;
+        this.state = "";
     }
 
     setValue(value){
 
         this.value = value;
+    }
+
+    setState(state) {
+
+        this.state = state;
+
     }
 
     getValue(){
@@ -21,6 +28,12 @@ class Button{
 
     }
 
+    getState(){
+
+        return this.state;
+
+    }
+    
     getMediaoutCommand(){
 
         return this.mediaoutCommand;
@@ -32,6 +45,7 @@ class Button{
         return this.buttonActions;
 
     }
+    
 }
 
 module.exports = Button;
