@@ -180,7 +180,8 @@ midi.on("noteon", msg => {
     midi.controls.forEach(control => {
        if (control instanceof Button && msg.note === control.midiNote) {
            control.setValue(msg.value);
-           midi.send(config.midi.output, [0x90, control.midiNote, 127]);
+           //control.setState();
+           //midi.send(config.midi.output, [0x90, control.midiNote, 127]);
            Object.keys(control.getButtonActions()).forEach(action => {
                if (action === "mediaout") {
                    mediaout.send(control.getButtonActions()[action]);
@@ -201,7 +202,8 @@ midi.on('noteoff', msg => {
    //midi.controls.forEach(control => {
    //    if (control instanceof Button && msg.note === control.midiNote) {
    //        control.setValue(msg.value);
-   //        midi.send("MIDI Mix",[0x90, control.midiNote, 0]);
+   //        control.setState(false);
+   //        //midi.send("MIDI Mix",[0x90, control.midiNote, 0]);
    //    }
    // });
 });
@@ -234,11 +236,11 @@ vmix.on("status", status => {
 
         const muted = input.muted === "True";
 
-        if (!muted) {
-            midi.send(config.midi.output, [0x90, control.midiNote, 0]);
-        } else {
-            midi.send(config.midi.output, [0x90, control.midiNote, 127]);
-        }
+        //if (!muted) {
+        //    midi.send(config.midi.output, [0x90, control.midiNote, 0]);
+        //} else {
+        //    midi.send(config.midi.output, [0x90, control.midiNote, 127]);
+        //}
         control.setState(muted);
 
     });
@@ -252,6 +254,17 @@ setInterval(() => {
 
 setInterval(() => {
     vmix.updateStatus();
-}, 500);
+    let muted;
+    midi.controls.forEach(control => {
+        if (control instanceof Button) {
+            muted = control.getState();
+            if (!muted) {
+                midi.send(config.midi.output, [0x90, control.midiNote, 0]);
+            } else {
+                midi.send(config.midi.output, [0x90, control.midiNote, 127]);
+            }
+        }    
+    });
+}, 200);
 
 console.log("System started.");

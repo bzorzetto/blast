@@ -46,28 +46,31 @@ class VmixClient extends EventEmitter {
     }
 
     async updateStatus() {
-
-        const status = await this.getStatus();
+        try {
+            const status = await this.getStatus();
         
-        let inputs;
+            let inputs;
 
-        if (Array.isArray(status.vmix.inputs)) {
+            if (Array.isArray(status.vmix.inputs)) {
 
-            inputs = Object.fromEntries(
-                status.vmix.inputs.map(input => [
-                    input.number,
-                    input
-                ])
-            );
+                inputs = Object.fromEntries(
+                    status.vmix.inputs.map(input => [
+                        input.number,
+                        input
+                    ])
+                );
 
-        } else {
+            } else {
 
-            inputs = status.vmix.inputs;
+                inputs = status.vmix.inputs;
 
+            }
+
+            this.emit("status", status);
+
+        } catch (error) {
+    
         }
-
-        this.emit("status", status);
-
     }
 
     connect() {
