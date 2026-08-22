@@ -11,4 +11,3 @@ Thumbs.db
 
 # Ignore envinoment files
 .env
-config.json
