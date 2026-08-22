@@ -153,7 +153,6 @@ Object.keys(config.buttons).forEach(buttonId => {
 });
 
 
-
 // -----------------//
 // Operate controls //
 // -----------------//
@@ -245,6 +244,28 @@ vmix.on("status", status => {
 
     });
     
+});
+
+bose.on("connected", msg => {
+    // Do subscriptions to Bose cahannels to get feedback from
+    midi.controls.forEach(control => {
+        if (control instanceof Slider && control.boseChannel) {
+            bose.subscribeGain(control.boseChannel);
+        }
+        if (control instanceof Button && control.boseChannel) {
+            bose.subscribeMute(control.boseChannel);
+        }
+    });
+});   
+
+bose.on("data", data => {
+
+    if (debug > 2) {console.log(data)};
+    if (data === `GA"GainCH2">2=F;`) {
+       midi.send("MIDI Mix",[0x90, 0x01, 0]);
+    } else if (data === `GA"GainCH2">2=O;`) {
+       midi.send("MIDI Mix",[0x90, 0x01, 127]);
+    }
 });
 
 // Send Alive message every 2Sec to mediaout to keep connetion active

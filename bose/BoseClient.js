@@ -105,6 +105,13 @@ class BoseClient extends EventEmitter {
         this.send(`SA "GainCH${channel}">2=T`);
     }
 
+    subscribeMute(channel){
+        this.send(`SUB "GA "GainCH${channel}">2"`)
+    }
+
+    subscribeGain(channel){
+        this.send(`SUB "GA "GainCH${channel}">1"`)
+    }
 }
 
 module.exports=BoseClient;
