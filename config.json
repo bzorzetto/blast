@@ -53,10 +53,6 @@
                 "input": 1,
                 "function": "TOGGLE_MUTE_CHANNEL"
             },
-            "bose": {
-                "channel": 1,
-                "function": "TOGGLE_MUTE_CHANNEL"
-            },
             "mediaout": {
                 "function": "CUE"
             }
@@ -65,8 +61,8 @@
         "2": {
             "name": "Button_2",
             "midiNote": 4,
-            "vmix": {
-                "input": 2,
+            "bose": {
+                "channel": 2,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
         }

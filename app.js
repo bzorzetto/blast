@@ -117,7 +117,6 @@ mediaout.connect();
 // Aggiungo gli slider definiti nel file di configurazione
 Object.keys(config.sliders).forEach(sliderId => {
     const sliderConfig = config.sliders[sliderId];
-    //console.log(config.sliders[sliderId]);
     const slider = new Slider({
         midiCC: sliderConfig.midiCC,    
     vmixChannel: sliderConfig.vmix.input,
@@ -213,7 +212,8 @@ mediaout.on("message", msg => {
     
 });
 
-// Elabora i feedback da vMix
+// Elabora i feedback da vMix ottenuti tramite la funzione 
+// vmix.updateStatus() richiamata a tempo (vedi sotto)
 vmix.on("status", status => {
     
     const inputs = status.vmix.inputs.input;
@@ -260,12 +260,20 @@ bose.on("connected", msg => {
 
 bose.on("data", data => {
 
-    if (debug > 2) {console.log(data)};
-    if (data === `GA"GainCH2">2=F;`) {
-       midi.send("MIDI Mix",[0x90, 0x01, 0]);
-    } else if (data === `GA"GainCH2">2=O;`) {
-       midi.send("MIDI Mix",[0x90, 0x01, 127]);
-    }
+    //if (debug > 2) {console.log(data)};
+
+    const messages = data.split(";");
+
+    midi.controls.forEach(control => {
+        messages.forEach(msg => {console.log(msg)});
+        if (control instanceof Button && data === `GA"GainCH${control.boseChannel}">2=F;`) {
+            control.setState(false);
+            console.log("Cambiato stato :", control.boseChannel, ": True")
+        } else if (control instanceof Button && data === `GA"GainCH${control.boseChannel}">2=O;`) {
+            control.setState(true);
+            console.log("Cambiato stato :", control.boseChannel, ": False")
+        }
+    });
 });
 
 // Send Alive message every 2Sec to mediaout to keep connetion active
@@ -275,6 +283,9 @@ setInterval(() => {
 
 setInterval(() => {
     vmix.updateStatus();
+}, 200);
+
+setInterval(() => {
     let muted;
     midi.controls.forEach(control => {
         if (control instanceof Button) {
