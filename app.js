@@ -119,8 +119,8 @@ Object.keys(config.sliders).forEach(sliderId => {
     const sliderConfig = config.sliders[sliderId];
     const slider = new Slider({
         midiCC: sliderConfig.midiCC,    
-    vmixChannel: sliderConfig.vmix.input,
-    boseChannel: sliderConfig.bose.channel
+    vmixChannel: sliderConfig.vmix?.input,
+    boseChannel: sliderConfig.bose?.channel
     });
     midi.addControl(slider);
 });
@@ -260,19 +260,18 @@ bose.on("connected", msg => {
 
 bose.on("data", data => {
 
-    //if (debug > 2) {console.log(data)};
+    if (debug > 2) {console.log("Bose ==> :", data)};
 
     const messages = data.split(";");
-
-    midi.controls.forEach(control => {
-        messages.forEach(msg => {console.log(msg)});
-        if (control instanceof Button && data === `GA"GainCH${control.boseChannel}">2=F;`) {
-            control.setState(false);
-            console.log("Cambiato stato :", control.boseChannel, ": True")
-        } else if (control instanceof Button && data === `GA"GainCH${control.boseChannel}">2=O;`) {
-            control.setState(true);
-            console.log("Cambiato stato :", control.boseChannel, ": False")
-        }
+    
+    messages.forEach(msg => {
+        midi.controls.forEach(control => {    
+            if (control instanceof Button && msg === `GA"GainCH${control.boseChannel}">2=F`) {
+                control.setState(false);
+            } else if (control instanceof Button && msg === `GA"GainCH${control.boseChannel}">2=O`) {
+                control.setState(true);
+            }
+        });
     });
 });
 

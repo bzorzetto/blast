@@ -24,7 +24,7 @@
             "name": "Slider_1",
             "midiCC": 19,
             "vmix": {
-                "input": 1,
+                "input": "M",
                 "function": "Volume"
             },
             "bose": {
@@ -34,14 +34,22 @@
         },
         "2": {
             "name": "Slider_2",
-            "midiCC": 20,
+            "midiCC": 23,
             "vmix": {
-                "input": 2,
+                "input": "A",
                 "function": "Volume"
             },
             "bose": {
                 "channel": 2,
                 "function": "Gain"
+            }
+        },
+        "3": {
+            "name": "Slider_3",
+            "midiCC": 27,
+            "vmix": {
+                "input": "1",
+                "function": "Volume"
             }
         }
     },

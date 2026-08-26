@@ -147,9 +147,17 @@ class VmixClient extends EventEmitter {
     }
 
     setVolume(input,value){
-
-        this.send(`FUNCTION SetVolume Input=${input}&Value=${value}`);
-
+        
+        switch(input) {
+            case "M":
+                this.send(`FUNCTION SetMasterVolume Value=${value}`);
+                break;
+            case "A":
+                this.send(`FUNCTION SetBus${input}Volume Value=${value}`);
+                break;
+            default:
+                this.send(`FUNCTION SetVolume Input=${input}&Value=${value}`);
+        }
     }
 
     muteChannel(input){
