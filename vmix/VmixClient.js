@@ -132,6 +132,9 @@ class VmixClient extends EventEmitter {
             case "TOGGLE_MUTE_CHANNEL":
                 this.toggleMuteChannel(command.input);
                 break;
+            case "BUSX_SEND_TO_MASTER":
+                this.busxSendToMaster(command.input);
+                break;
             default:
                 console.log("Vmix Client: Unknown command type: " + command.type);
             }
@@ -221,6 +224,10 @@ class VmixClient extends EventEmitter {
             default: // Toggle input mute 
                 this.send(`FUNCTION Audio Input=${input}`);
         }
+    }
+
+    busxSendToMaster(input){
+        this.send(`FUNCTION BusXSendToMaster Value=${input}`);
     }
 }
 

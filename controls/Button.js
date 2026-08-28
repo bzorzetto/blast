@@ -7,6 +7,7 @@ class Button{
         this.boseChannel=config.boseChannel;
         this.mediaoutCommand=config.mediaOutCommand;
         this.buttonActions=config.buttonActions || {};
+        this.ledFeedBack=config.ledFeedBack; 
         this.value = 0;
         this.state = false;
     }
@@ -14,11 +15,12 @@ class Button{
     setValue(value){
 
         this.value = value;
+
     }
 
-    setState(state) {
+    setState(origin, state) {
 
-        this.state = state;
+        if (this.ledFeedBack === origin){this.state = state};
 
     }
 

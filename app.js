@@ -148,6 +148,7 @@ Object.keys(config.buttons).forEach(buttonId => {
         midiNote: buttonConfig.midiNote,
         vmixChannel: buttonConfig.vmix?.input,
         boseChannel: buttonConfig.bose?.channel,
+        ledFeedBack: buttonConfig.ledFeedBack,
         buttonActions
     });
     midi.addControl(button);
@@ -250,37 +251,37 @@ vmix.on("status", status => {
 try {
         midi.controls.forEach(control => { 
             if ((control instanceof Button) && (busMaster?.muted === "True") && (control.vmixChannel === "M")) { 
-                control.setState(true);
+                control.setState("vmix", true);
             } else if ((control instanceof Button) && (busMaster?.muted === "False") && (control.vmixChannel === "M")) {
-                control.setState(false);
+                control.setState("vmix", false);
             } else if ((control instanceof Button) && (busA?.muted === "True") && (control.vmixChannel === "A")) {
-                control.setState(true);
+                control.setState("vmix", true);
             } else if ((control instanceof Button) && (busA?.muted === "False") && (control.vmixChannel === "A")) {
-                control.setState(false);
+                control.setState("vmix", false);
             } else if ((control instanceof Button) && (busB?.muted === "True") && (control.vmixChannel === "B")) {
-                control.setState(true);
+                control.setState("vmix", true);
             } else if ((control instanceof Button) && (busB?.muted === "False") && (control.vmixChannel === "B")) {
-                control.setState(false);
+                control.setState("vmix", false);
             } else if ((control instanceof Button) && (busC?.muted === "True") && (control.vmixChannel === "C")) {
-                control.setState(true);
+                control.setState("vmix", true);
             } else if ((control instanceof Button) && (busC?.muted === "False") && (control.vmixChannel === "C")) {
-                control.setState(false);
+                control.setState("vmix", false);
             } else if ((control instanceof Button) && (busD?.muted === "True") && (control.vmixChannel === "D")) {
-                control.setState(true);
+                control.setState("vmix", true);
             } else if ((control instanceof Button) && (busD?.muted === "False") && (control.vmixChannel === "D")) {
-                control.setState(false);
+                control.setState("vmix", false);
             } else if ((control instanceof Button) && (busE?.muted === "True") && (control.vmixChannel === "E")) {
-                control.setState(true);
+                control.setState("vmix", true);
             } else if ((control instanceof Button) && (busE?.muted === "False") && (control.vmixChannel === "E")) {
-                control.setState(false);
+                control.setState("vmix", false);
             } else if ((control instanceof Button) && (busF?.muted === "True") && (control.vmixChannel === "F")) {
-                control.setState(true);
+                control.setState("vmix", true);
             } else if ((control instanceof Button) && (busF?.muted === "False") && (control.vmixChannel === "F")) {
-                control.setState(false);
+                control.setState("vmix", false);
             } else if ((control instanceof Button) && (busG?.muted === "True") && (control.vmixChannel === "G")) {
-                control.setState(true);
+                control.setState("vmix", true);
             } else if ((control instanceof Button) && (busG?.muted === "False") && (control.vmixChannel === "G")) {
-                control.setState(false);
+                control.setState("vmix", false);
             }
         }); 
     } catch(error) {
@@ -294,7 +295,7 @@ try {
                 const input = inputs.find( input => input.number === String(control.vmixChannel) );
                 if (input) { 
                     const muted = input.muted === "True"; 
-                    control.setState(muted); 
+                    control.setState("vmix", muted); 
                 } 
             } 
         });
@@ -331,9 +332,9 @@ bose.on("data", data => {
     messages.forEach(msg => {
         midi.controls.forEach(control => {    
             if (control instanceof Button && msg === `GA"GainCH${control.boseChannel}">2=F`) {
-                control.setState(false);
+                control.setState("bose", false);
             } else if (control instanceof Button && msg === `GA"GainCH${control.boseChannel}">2=O`) {
-                control.setState(true);
+                control.setState("bose", true);
             }
         });
     });

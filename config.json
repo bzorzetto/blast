@@ -53,9 +53,10 @@
         "1": {
             "name": "Button_1",
             "midiNote": 1,
+            "ledFeedBack": "vmix",
             "vmix": {
-                "input": "1",
-                "function": "TOGGLE_MUTE_CHANNEL"
+                "input": "A",
+                "function": "BUSX_SEND_TO_MASTER"
             },
             "bose": {
                 "channel": 1,
@@ -65,8 +66,9 @@
         "2": {
             "name": "Button_2",
             "midiNote": 4,
+            "ledFeedBack": "bose",
             "vmix": {
-                "input": "A",
+                "input": "1",
                 "function": "TOGGLE_MUTE_CHANNEL"
             },
             "bose": {
