@@ -137,7 +137,7 @@ class VmixClient extends EventEmitter {
             }
     }
 
-    send(command){
+    send(command) {
 
         if(!this.connected)
             return;
@@ -146,36 +146,81 @@ class VmixClient extends EventEmitter {
 
     }
 
-    setVolume(input,value){
+    setVolume(input,value) {
         
         switch(input) {
-            case "M":
+            case "M":  // Set master volume
                 this.send(`FUNCTION SetMasterVolume Value=${value}`);
                 break;
-            case "A":
+            case "A":  // Set bus volume
+            case "B":
+            case "C":
+            case "D":
+            case "E":
+            case "F":
+            case "G":
                 this.send(`FUNCTION SetBus${input}Volume Value=${value}`);
                 break;
-            default:
+            default: // Set input volume
                 this.send(`FUNCTION SetVolume Input=${input}&Value=${value}`);
         }
     }
 
-    muteChannel(input){
-
-        this.send(`FUNCTION AudioOff Input=${input}`);
-
+    muteChannel(input) {
+        switch (input) {
+            case "M": // Mute master
+                this.send(`FUNCTION MasterAudioOff`);
+                break;
+            case "A":  // Mute bus
+            case "B":
+            case "C":
+            case "D":
+            case "E":
+            case "F":
+            case "G":
+                this.send(`FUNCTION BusXAudioOff Value=${input}`);
+                break;    
+            default: // Mute input
+                this.send(`FUNCTION AudioOff Input=${input}`);
+        }
     }
 
     unmuteChannel(input){
-
-        this.send(`FUNCTION AudioOn Input=${input}`);
-
+        switch(input) {
+            case "M": // Unmute master
+                this.send(`FUNCTION MasterAudioOn`);
+                break;
+            case "A":  // Unmute bus
+            case "B":
+            case "C":
+            case "D":
+            case "E":
+            case "F":
+            case "G":
+                this.send(`FUNCTION BusXAudioOn Value=${input}`);
+                break;       
+            default: // Unmute input
+                this.send(`FUNCTION AudioOn Input=${input}`);
+        }
     }
 
     toggleMuteChannel(input){
-
-        this.send(`FUNCTION Audio Input=${input}`);
-
+        switch (input) {
+            case "M": // Toggle master mute
+                this.send(`FUNCTION MasterAudio`);
+                break;
+            case "A":  // Toggle bus mute
+            case "B":
+            case "C":
+            case "D":
+            case "E":
+            case "F":
+            case "G":
+                this.send(`FUNCTION BusXAudio Value=${input}`);
+                break;
+            default: // Toggle input mute 
+                this.send(`FUNCTION Audio Input=${input}`);
+        }
     }
 }
 

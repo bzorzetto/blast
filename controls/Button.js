@@ -8,7 +8,7 @@ class Button{
         this.mediaoutCommand=config.mediaOutCommand;
         this.buttonActions=config.buttonActions || {};
         this.value = 0;
-        this.state = "";
+        this.state = false;
     }
 
     setValue(value){

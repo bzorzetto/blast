@@ -1,0 +1,141 @@
+B.L.A.S.T. - Bruno Live Automation SofTware
+
+Il progetto nasce per soddisfare una esigenza, nata in azienda, quando si è deciso di produrre un programma musiacle live.
+La produzione riteneva necessario che il prodotto finale assomigliasse il più possibile ad uno show di stile radiofonico anni 70,
+dove il DJ agiva ache come regista di se stesso. A tale scopop si è pensato di dotare il conduttore di una console che fosse in grado di 
+interagire con i più moderni sistemi odierni come vMix e Mediaout per la parte video ed un processore audio con supporto Dante come il Bose EX12880
+Data l'eterogeneicità del sistema seviva quindi un software di gestione in grado di interagire con i vari dispositivi presenti, ed ecco perchè nasce BLAST.
+BLAST si avvale di un qualsiasi terminale MIDI ,come AKAI MidiMix o il Novation Launch Control, per tradurre i vari comandi MIDI ed inviarli alle periferiche
+secondo un configurazione decisa dall'utente.
+ 
+                         ------
+                         |MIDI|
+                         ------
+                           |  
+                          usb
+                           |
+                         ------- 
+               ----tcp---|BLAST|---udp----
+               |         -------         |
+               |           |             |
+               |          tcp            |
+            ------       ------      -----------
+            |Bose|       |vMix|      |Mainlevel|
+            ------       ------      -----------
+
+BAST comunica tramite API con vMix e tramite il protocollo TCP -> Seriale con Bose mentre per Mainlevel viene utilizzato il protocollo prorietario su base UDP
+
+Configurazione:
+Il file config.json è strutturato in due parti fondamentali:
+
+Definizione hosts e porte
+
+"hosts": {
+        "vmix": {
+            "host": "127.0.0.1",
+            "apiPort": 8099,
+            "webPort": 8088
+        },
+        "bose": {
+            "host": "192.168.127.6",
+            "port": 10055
+        },
+        "mediaout": {
+            "host": "127.0.0.1",
+            "portTx": 5400,
+            "portRx": 6400
+        }
+    },
+
+Definizione pulsanti, sliders e loro funzioni:
+
+    "sliders":{
+        "1": {
+            "name": "Slider_1",
+            "midiCC": 19,
+            "vmix": {
+                "input": "M",
+                "function": "Volume"
+            },
+            "bose": {
+                "channel": 1,
+                "function": "Gain"
+            }
+        },
+        "2": {
+            "name": "Slider_2",
+            "midiCC": 23,
+            "vmix": {
+                "input": "B",
+                "function": "Volume"
+            },
+            "bose": {
+                "channel": 2,
+                "function": "Gain"
+            }
+        },
+        "3": {
+            "name": "Slider_3",
+            "midiCC": 27,
+            "vmix": {
+                "input": "1",
+                "function": "Volume"
+            }
+        }
+    },
+    "buttons":{
+        "1": {
+            "name": "Button_1",
+            "midiNote": 1,
+            "vmix": {
+                "input": "M",
+                "function": "TOGGLE_MUTE_CHANNEL"
+            },
+            "mediaout": {
+                "function": "CUE"
+            }
+
+        },
+        "2": {
+            "name": "Button_2",
+            "midiNote": 4,
+            "vmix": {
+                "input": "A",
+                "function": "TOGGLE_MUTE_CHANNEL"
+            },
+            "bose": {
+                "channel": 2,
+                "function": "MUTE_CHANNEL"
+            }
+        },
+        "3": {
+            "name": "Button_3",
+            "midiNote": 7,
+            "vmix": {
+                "input": "B",
+                "function": "UNMUTE_CHANNEL"
+            }
+        },
+        "4": {
+            "name": "Button_4",
+            "midiNote": 10,
+            "vmix": {
+                "input": "1",
+                "function": "TOGGLE_MUTE_CHANNEL"
+            }
+        }
+    }
+
+
+
+Funzioni Pulsanti:
+
+: MUTE_CHANNEL
+: UNMUTE_CHANNEL
+: TOGGLE_MUTE_CHANNEL
+
+
+Funzioni Sliders:
+
+: Volume - vMix
+: Gain - Bose
