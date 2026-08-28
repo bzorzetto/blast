@@ -21,10 +21,18 @@
     },
     "sliders":{
         "1": {
+            "name": "Master",
+            "midiCC": 62,
+            "vmix": {
+                "input": "M",
+                "function": "Volume"
+            }
+        },
+        "2": {
             "name": "Slider_1",
             "midiCC": 19,
             "vmix": {
-                "input": "M",
+                "input": "1",
                 "function": "Volume"
             },
             "bose": {
@@ -32,24 +40,12 @@
                 "function": "Gain"
             }
         },
-        "2": {
+        "3": {
             "name": "Slider_2",
             "midiCC": 23,
-            "vmix": {
-                "input": "B",
-                "function": "Volume"
-            },
             "bose": {
                 "channel": 2,
                 "function": "Gain"
-            }
-        },
-        "3": {
-            "name": "Slider_3",
-            "midiCC": 27,
-            "vmix": {
-                "input": "1",
-                "function": "Volume"
             }
         }
     },
@@ -58,13 +54,13 @@
             "name": "Button_1",
             "midiNote": 1,
             "vmix": {
-                "input": "M",
+                "input": "1",
                 "function": "TOGGLE_MUTE_CHANNEL"
             },
-            "mediaout": {
-                "function": "CUE"
+            "bose": {
+                "channel": 1,
+                "function": "TOGGLE_MUTE_CHANNEL"
             }
-
         },
         "2": {
             "name": "Button_2",
@@ -72,22 +68,17 @@
             "vmix": {
                 "input": "A",
                 "function": "TOGGLE_MUTE_CHANNEL"
+            },
+            "bose": {
+                "channel": 2,
+                "function": "TOGGLE_MUTE_CHANNEL"
             }
         },
         "3": {
             "name": "Button_3",
             "midiNote": 7,
-            "vmix": {
-                "input": "B",
-                "function": "TOGGLE_MUTE_CHANNEL"
-            }
-        },
-        "4": {
-            "name": "Button_4",
-            "midiNote": 10,
-            "vmix": {
-                "input": "1",
-                "function": "TOGGLE_MUTE_CHANNEL"
+            "mediaout": {
+                "function": "CUE"
             }
         }
     }
