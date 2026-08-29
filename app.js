@@ -188,9 +188,9 @@ midi.on("noteon", msg => {
 
     midi.controls.forEach(control => {
        if (control instanceof Button && msg.note === control.midiNote) {
-           control.setValue(msg.value);
-           //control.setState();
-           //midi.send(config.midi.output, [0x90, control.midiNote, 127]);
+
+           control.setValue(msg.value); // azione inutile al momento
+
            Object.keys(control.getButtonActions()).forEach(action => {
                if (action === "mediaout") {
                    mediaout.send(control.getButtonActions()[action]);
@@ -238,30 +238,48 @@ vmix.on("status", status => {
         const inputs = status.vmix.inputs.input;
         const busses = status.vmix.audio;
 
-// Gestione dello stato "muted" degli ingressi 
-        midi.controls.forEach(control => { 
+    try {
+        midi.controls.forEach(control => {
+        // Gestione dello stato "muted" degli ingressi  
             if ((control instanceof Button) && !(control.vmixChannel === undefined)) { 
                 const input = inputs.find( input => input.number === String(control.vmixChannel) );
-                if (input) { 
+                if (input && control.buttonActions.vmix.includes("MUTE")) { 
                     const muted = input.muted === "True"; 
-                    control.setState("vmix", muted); 
-                } 
-// Gestione stato "muted" del Master e dei sub gruppi audio A,B,C,D,E,F e G
+                    control.setState("vmix", muted);
+                }
+        // Gestione dello stato "solo" degli ingressi        
+                if (input && control.buttonActions.vmix.includes("SOLO")) { 
+                    const solo = input.solo === "True"; 
+                    control.setState("vmix", solo);
+                }
+        // Gestione subgruppi ingressi 
+                if (input && control.buttonActions.vmix.includes("BUS")) {
+                    const audiobus = input.audiobusses.includes(control.buttonActions.vmix.substr(10, 1)); 
+                    control.setState("vmix", audiobus);
+                }
+        // Gestione stati del Master e dei sub gruppi audio A,B,C,D,E,F e G
                 Object.entries(busses).forEach(([channel, data]) => {
+                    // Sato "muted"
                     const busmuted = data.muted === 'True';
-                    if (channel.includes(control.vmixChannel)) {
+                    if (channel.includes(control.vmixChannel) && control.buttonActions.vmix.includes("MUTE")) {
                         control.setState("vmix", busmuted);
-                    } else if (channel === "master" && control.vmixChannel === "M") {
+                    } else if (channel === "master" && control.vmixChannel === "M" && control.buttonActions.vmix.includes("MUTE")) {
                         control.setState("vmix", busmuted);
                     }
+                    // Stato "sendTo Master"    
+                    const sendToMaster = data.sendToMaster === "True";
+                    if (channel.includes(control.vmixChannel) && control.buttonActions.vmix.includes("BUSX")) {
+                        control.setState("vmix", sendToMaster);
+                    }
+
                 });
             }
         });
+    } catch(error) {
+        console.log(error);
+    }
 });
 
-
-
-// ------------------------------------------------------------------------------------------------------------------//
 
 
 // ----------------------------//

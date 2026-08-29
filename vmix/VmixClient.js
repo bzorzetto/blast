@@ -132,8 +132,34 @@ class VmixClient extends EventEmitter {
             case "TOGGLE_MUTE_CHANNEL":
                 this.toggleMuteChannel(command.input);
                 break;
+            case "SOLO":
+                this.solo(command.input);
+                break;
             case "BUSX_SEND_TO_MASTER":
                 this.busxSendToMaster(command.input);
+                break;
+            case "AUDIO_BUS_M":
+                this.audioBus(command.input, "M");
+                break;
+            case "AUDIO_BUS_A":
+                this.audioBus(command.input, "A");
+                break;
+            case "AUDIO_BUS_B":
+                this.audioBus(command.input, "B");
+                break;
+            case "AUDIO_BUS_C":
+                this.audioBus(command.input, "C");
+                break;
+            case "AUDIO_BUS_D":
+                this.audioBus(command.input, "D");
+                break;
+            case "AUDIO_BUS_E":
+                this.audioBus(command.input, "E");
+                break;
+            case "AUDIO_BUS_F":
+                this.audioBus(command.input, "F");
+            case "AUDIO_BUS_G":
+                this.audioBus(command.input, "G");
                 break;
             default:
                 console.log("Vmix Client: Unknown command type: " + command.type);
@@ -226,8 +252,16 @@ class VmixClient extends EventEmitter {
         }
     }
 
+    solo(input){
+        this.send(`FUNCTION Solo Input=${input}`);
+    }
+
     busxSendToMaster(input){
         this.send(`FUNCTION BusXSendToMaster Value=${input}`);
+    }
+
+    audioBus(input, bus) {
+        this.send(`FUNCTION AudioBus Input=${input}&Value=${bus}`);
     }
 }
 

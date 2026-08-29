@@ -1,12 +1,12 @@
 B.L.A.S.T. - Bruno Live Automation SofTware
 
-Il progetto nasce per soddisfare una esigenza, nata in azienda, quando si è deciso di produrre un programma musiacle live.
+Il progetto nasce per soddisfare un'esigenza, nata in azienda, quando si è deciso di produrre un programma musiacle live.
 La produzione riteneva necessario che il prodotto finale assomigliasse il più possibile ad uno show di stile radiofonico anni 70,
-dove il DJ agiva ache come regista di se stesso. A tale scopop si è pensato di dotare il conduttore di una console che fosse in grado di 
-interagire con i più moderni sistemi odierni come vMix e Mediaout per la parte video ed un processore audio con supporto Dante come il Bose EX12880
+dove, il DJ, agiva anche come regista di se stesso. A tale scopop si è pensato di dotare il conduttore di una console che fosse in grado di 
+interagire con i più moderni sistemi di produzione come, vMix e Mediaout per la parte video con i più moderni processori audio come il Bose EX12880.
 Data l'eterogeneicità del sistema seviva quindi un software di gestione in grado di interagire con i vari dispositivi presenti, ed ecco perchè nasce BLAST.
-BLAST si avvale di un qualsiasi terminale MIDI ,come AKAI MidiMix o il Novation Launch Control, per tradurre i vari comandi MIDI ed inviarli alle periferiche
-secondo un configurazione decisa dall'utente.
+BLAST si avvale di un qualsiasi terminale MIDI ,come AKAI MidiMix o il Novation Launch Control, per tradurre i vari comandi MIDI in azioni utili per 
+essere inviate alle periferiche secondo una configurazione decisa dall'utente.
  
                          ------
                          |MIDI|
@@ -46,8 +46,12 @@ Definizione hosts e porte
             "portRx": 6400
         }
     },
+    "midi": {
+        "input": "MIDI Mix",
+        "output": "MIDI Mix"
+    }
 
-Definizione pulsanti, sliders e loro funzioni:
+Definizione sliders e loro funzioni:
 
     "sliders":{
         "1": {
@@ -61,32 +65,16 @@ Definizione pulsanti, sliders e loro funzioni:
                 "channel": 1,
                 "function": "Gain"
             }
-        },
-        "2": {
-            "name": "Slider_2",
-            "midiCC": 23,
-            "vmix": {
-                "input": "B",
-                "function": "Volume"
-            },
-            "bose": {
-                "channel": 2,
-                "function": "Gain"
-            }
-        },
-        "3": {
-            "name": "Slider_3",
-            "midiCC": 27,
-            "vmix": {
-                "input": "1",
-                "function": "Volume"
-            }
         }
-    },
+    }
+            
+Definizione pulsanti e relative funzioni
+
     "buttons":{
         "1": {
             "name": "Button_1",
             "midiNote": 1,
+            "ledFeedBack": "vmix"
             "vmix": {
                 "input": "M",
                 "function": "TOGGLE_MUTE_CHANNEL"
@@ -94,7 +82,6 @@ Definizione pulsanti, sliders e loro funzioni:
             "mediaout": {
                 "function": "CUE"
             }
-
         },
         "2": {
             "name": "Button_2",
@@ -107,35 +94,33 @@ Definizione pulsanti, sliders e loro funzioni:
                 "channel": 2,
                 "function": "MUTE_CHANNEL"
             }
-        },
-        "3": {
-            "name": "Button_3",
-            "midiNote": 7,
-            "vmix": {
-                "input": "B",
-                "function": "UNMUTE_CHANNEL"
-            }
-        },
-        "4": {
-            "name": "Button_4",
-            "midiNote": 10,
-            "vmix": {
-                "input": "1",
-                "function": "TOGGLE_MUTE_CHANNEL"
-            }
         }
     }
 
 
+Funzioni Pulsanti vMix:
 
-Funzioni Pulsanti:
+Mute:
+: MUTE_CHANNEL         // Mute specific channel 
+: UNMUTE_CHANNEL       // Unmute specific channel
+: TOGGLE_MUTE_CHANNEL  // Toggle mute of specific channel
 
-: MUTE_CHANNEL
-: UNMUTE_CHANNEL
-: TOGGLE_MUTE_CHANNEL
+Bus:
+: BUSX_SEND_TO_MASTER  // Send bus A|B|C|D|E|F|G to master output (TOGGLE)
+: AUDIO_BUS_A/B/C..etc // Send single audio input to a specific bus (TOGGLE)
 
+Solo:
+: SOLO                 // Solo specific audio channel (TOGGLE)
 
 Funzioni Sliders:
 
-: Volume - vMix
-: Gain - Bose
+: Volume - vMix        // (Unused now, maybe in the future)
+: Gain - Bose          // (Unused now, maybe in the future) 
+
+
+Funzioni Pulsanti Bose:
+
+Mute:
+: MUTE_CHANNEL         // Mute specific channel 
+: UNMUTE_CHANNEL       // Unmute specific channel
+: TOGGLE_MUTE_CHANNEL  // Toggle mute of specific channel
