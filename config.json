@@ -55,8 +55,8 @@
             "midiNote": 1,
             "ledFeedBack": "vmix",
             "vmix": {
-                "input": "A",
-                "function": "BUSX_SEND_TO_MASTER"
+                "input": "M",
+                "function": "TOGGLE_MUTE_CHANNEL"
             },
             "bose": {
                 "channel": 1,
@@ -66,9 +66,9 @@
         "2": {
             "name": "Button_2",
             "midiNote": 4,
-            "ledFeedBack": "bose",
+            "ledFeedBack": "vmix",
             "vmix": {
-                "input": "1",
+                "input": "A",
                 "function": "TOGGLE_MUTE_CHANNEL"
             },
             "bose": {
@@ -79,8 +79,30 @@
         "3": {
             "name": "Button_3",
             "midiNote": 7,
+            "ledFeedBack": "vmix",
+            "vmix": {
+                "input": "1",
+                "function": "TOGGLE_MUTE_CHANNEL"
+            },
+            "bose": {
+                "channel": 3,
+                "function": "TOGGLE_MUTE_CHANNEL"
+            },
             "mediaout": {
                 "function": "CUE"
+            }
+        },
+        "4": {
+            "name": "Button_4",
+            "midiNote": 10,
+            "ledFeedBack": "vmix",
+            "vmix": {
+                "input": "G",
+                "function": "TOGGLE_MUTE_CHANNEL"
+            },
+            "bose": {
+                "channel": 4,
+                "function": "TOGGLE_MUTE_CHANNEL"
             }
         }
     }

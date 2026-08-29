@@ -234,60 +234,9 @@ mediaout.on("message", msg => {
 // vmix.updateStatus() richiamata a tempo (vedi timers)
 
 vmix.on("status", status => {
- 
-    // Gestione stato "muted" del Master e dei sub gruppi audio A,B,C,D,E,F e G -------------------------------------//
-    // pezzo di codice terribile da sistemare........
-
+    
         const inputs = status.vmix.inputs.input;
-        const busMaster = status.vmix.audio.master;
-        const busA = status.vmix.audio.busA;
-        const busB = status.vmix.audio.busB;
-        const busC = status.vmix.audio.busC;
-        const busD = status.vmix.audio.busD;
-        const busE = status.vmix.audio.busE;
-        const busF = status.vmix.audio.busF;
-        const busG = status.vmix.audio.busG;
-
-try {
-        midi.controls.forEach(control => { 
-            if ((control instanceof Button) && (busMaster?.muted === "True") && (control.vmixChannel === "M")) { 
-                control.setState("vmix", true);
-            } else if ((control instanceof Button) && (busMaster?.muted === "False") && (control.vmixChannel === "M")) {
-                control.setState("vmix", false);
-            } else if ((control instanceof Button) && (busA?.muted === "True") && (control.vmixChannel === "A")) {
-                control.setState("vmix", true);
-            } else if ((control instanceof Button) && (busA?.muted === "False") && (control.vmixChannel === "A")) {
-                control.setState("vmix", false);
-            } else if ((control instanceof Button) && (busB?.muted === "True") && (control.vmixChannel === "B")) {
-                control.setState("vmix", true);
-            } else if ((control instanceof Button) && (busB?.muted === "False") && (control.vmixChannel === "B")) {
-                control.setState("vmix", false);
-            } else if ((control instanceof Button) && (busC?.muted === "True") && (control.vmixChannel === "C")) {
-                control.setState("vmix", true);
-            } else if ((control instanceof Button) && (busC?.muted === "False") && (control.vmixChannel === "C")) {
-                control.setState("vmix", false);
-            } else if ((control instanceof Button) && (busD?.muted === "True") && (control.vmixChannel === "D")) {
-                control.setState("vmix", true);
-            } else if ((control instanceof Button) && (busD?.muted === "False") && (control.vmixChannel === "D")) {
-                control.setState("vmix", false);
-            } else if ((control instanceof Button) && (busE?.muted === "True") && (control.vmixChannel === "E")) {
-                control.setState("vmix", true);
-            } else if ((control instanceof Button) && (busE?.muted === "False") && (control.vmixChannel === "E")) {
-                control.setState("vmix", false);
-            } else if ((control instanceof Button) && (busF?.muted === "True") && (control.vmixChannel === "F")) {
-                control.setState("vmix", true);
-            } else if ((control instanceof Button) && (busF?.muted === "False") && (control.vmixChannel === "F")) {
-                control.setState("vmix", false);
-            } else if ((control instanceof Button) && (busG?.muted === "True") && (control.vmixChannel === "G")) {
-                control.setState("vmix", true);
-            } else if ((control instanceof Button) && (busG?.muted === "False") && (control.vmixChannel === "G")) {
-                control.setState("vmix", false);
-            }
-        }); 
-    } catch(error) {
-        console.log(error);
-    }     
-//-------------------------------------------------------------------------------------------------------------------//
+        const busses = status.vmix.audio;
 
 // Gestione dello stato "muted" degli ingressi 
         midi.controls.forEach(control => { 
@@ -297,9 +246,21 @@ try {
                     const muted = input.muted === "True"; 
                     control.setState("vmix", muted); 
                 } 
-            } 
+// Gestione stato "muted" del Master e dei sub gruppi audio A,B,C,D,E,F e G
+                Object.entries(busses).forEach(([channel, data]) => {
+                    const busmuted = data.muted === 'True';
+                    if (channel.includes(control.vmixChannel)) {
+                        control.setState("vmix", busmuted);
+                    } else if (channel === "master" && control.vmixChannel === "M") {
+                        control.setState("vmix", busmuted);
+                    }
+                });
+            }
         });
 });
+
+
+
 // ------------------------------------------------------------------------------------------------------------------//
 
 
