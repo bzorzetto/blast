@@ -1,4 +1,4 @@
-const debug = 3;  // false = disable, true or 1, 2, 3 set log verbosity   
+const debug = 4;  // false = disable, true or 1, 2, 3 set log verbosity   
 const fs = require('fs');
 const MidiManager = require('./midi/MidiManager');
 const VmixClient = require('./vmix/VmixClient');
@@ -111,6 +111,9 @@ vmix.connect();
 bose.connect();
 mediaout.connect();
 
+// Set debug level 
+bose.setDebug(debug);
+vmix.setDebug(debug);
 
 // ----------------------------//
 // Add midi controls           //
@@ -122,7 +125,8 @@ Object.keys(config.sliders).forEach(sliderId => {
     const slider = new Slider({
         midiCC: sliderConfig.midiCC,    
     vmixChannel: sliderConfig.vmix?.input,
-    boseChannel: sliderConfig.bose?.channel
+    boseChannel: sliderConfig.bose?.channel,
+    boseModule: sliderConfig.bose?.module
     });
     midi.addControl(slider);
 });
@@ -170,11 +174,14 @@ midi.on("cc", msg => {
             control.setValue(msg.value);
             const boseValue = AudioConverter.midiToBose(control.value);
             const vmixValue = AudioConverter.midiToVmix(control.value);
-            bose.setGain(control.boseChannel, boseValue);
-            vmix.setVolume(control.vmixChannel, vmixValue);
+            if (control.boseChannel) {
+                bose.setGain(control.boseModule, control.boseChannel, boseValue);
+            } 
+            if (control.vmixChannel) {
+                vmix.setVolume(control.vmixChannel, vmixValue);
+            }
         }
     });
-
 });
 
 // ----------------------------//
@@ -235,6 +242,8 @@ mediaout.on("message", msg => {
 
 vmix.on("status", status => {
     
+    if (debug > 4) {console.log("Vmix ===> :", status)};
+
         const inputs = status.vmix.inputs.input;
         const busses = status.vmix.audio;
 
@@ -276,7 +285,7 @@ vmix.on("status", status => {
             }
         });
     } catch(error) {
-        console.log(error);
+        console.log(error);     
     }
 });
 
@@ -295,6 +304,7 @@ bose.on("connected", msg => {
             bose.subscribeMute(control.boseChannel);
         }
     });
+    bose.subscribePSTN(); // by default we subscribe to PSTN input just to get incoming call
 });   
 
 
@@ -304,18 +314,23 @@ bose.on("connected", msg => {
 
 bose.on("data", data => {
 
-    if (debug > 2) {console.log("Bose ==> :", data)};
+    if (debug > 3) {console.log("Bose ===> :", data)};
 
     const messages = data.split(";");
     
     messages.forEach(msg => {
-        midi.controls.forEach(control => {    
+        midi.controls.forEach(control => {
+            // Gestione sato "muted"    
             if (control instanceof Button && msg === `GA"GainCH${control.boseChannel}">2=F`) {
                 control.setState("bose", false);
             } else if (control instanceof Button && msg === `GA"GainCH${control.boseChannel}">2=O`) {
                 control.setState("bose", true);
             }
         });
+
+        if (msg === `GA"PSTN In 1">0>1="INCOMING"`){
+            console.log("CHIAMATAAAAAAAAAA");
+        }
     });
 });
 

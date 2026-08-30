@@ -5,6 +5,7 @@ class Slider{
         this.midiCC=config.midiCC;
         this.vmixChannel=config.vmixChannel;
         this.boseChannel=config.boseChannel;
+        this.boseModule=config.boseModule;
         this.value = 0;
     }
 

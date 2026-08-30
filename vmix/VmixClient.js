@@ -18,6 +18,7 @@ class VmixClient extends EventEmitter {
 
         this.socket = null;
         this.connected = false;
+        this.debug = false;
 
     }
 
@@ -166,13 +167,18 @@ class VmixClient extends EventEmitter {
             }
     }
 
+    setDebug(level){
+        this.debug = level;
+    }
+
     send(command) {
 
         if(!this.connected)
             return;
 
         this.socket.write(command+"\r\n");
-
+        
+        if (this.debug > 3) {console.log("Vmix <===", command);}
     }
 
     setVolume(input,value) {

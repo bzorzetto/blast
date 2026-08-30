@@ -25,7 +25,12 @@
             "midiCC": 62,
             "vmix": {
                 "input": "M",
-                "function": "Volume"
+                "function": "VOLUME"
+            },
+            "bose": {
+                "module": "INPUT",
+                "channel": 1,
+                "function": "LEVEL"   
             }
         },
         "2": {
@@ -34,18 +39,156 @@
             "vmix": {
                 "input": "1",
                 "function": "Volume"
-            },
-            "bose": {
-                "channel": 1,
-                "function": "Gain"
             }
         },
         "3": {
             "name": "Slider_2",
             "midiCC": 23,
+            "vmix": {
+                "input": "2",
+                "function": "Volume"
+            }
+        },
+        "4": {
+            "name": "Slider_3",
+            "midiCC": 27,
+            "vmix": {
+                "input": "A",
+                "function": "Volume"
+            }
+        },
+        "5": {
+            "name": "Slider_4",
+            "midiCC": 31,
+            "vmix": {
+                "input": "B",
+                "function": "Volume"
+            }
+        },
+        "6": {
+            "name": "Knob 1",
+            "midiCC": 16,
             "bose": {
+                "module": "GainCH",
+                "channel": 1,
+                "function": "GAIN"
+            }
+        },
+        "7": {
+            "name": "Knob 2",
+            "midiCC": 20,
+            "bose": {
+                "module": "GainCH",
                 "channel": 2,
-                "function": "Gain"
+                "function": "GAIN"
+            }
+        },
+        "8": {
+            "name": "Knob 3",
+            "midiCC": 24,
+            "bose": {
+                "module": "GainCH",
+                "channel": 3,
+                "function": "GAIN"
+            }
+        },
+        "9": {
+            "name": "Knob 4",
+            "midiCC": 28,
+            "bose": {
+                "module": "GainCH",
+                "channel": 4,
+                "function": "GAIN"
+            }
+        },
+        "10": {
+            "name": "Knob 5",
+            "midiCC": 46,
+            "bose": {
+                "module": "GainCH",
+                "channel": 5,
+                "function": "GAIN"
+            }
+        },
+        "11": {
+            "name": "Knob 6",
+            "midiCC": 50,
+            "bose": {
+                "module": "GainCH",
+                "channel": 6,
+                "function": "GAIN"
+            }
+        },
+        "12": {
+            "name": "Knob 7",
+            "midiCC": 54,
+            "bose": {
+                "module": "GainCH",
+                "channel": 7,
+                "function": "GAIN"
+            }
+        },
+        "13": {
+            "name": "Knob 8",
+            "midiCC": 58,
+            "bose": {
+                "module": "GainCH",
+                "channel": 8,
+                "function": "GAIN"
+            }
+        },
+        "14": {
+            "name": "Knob 9",
+            "midiCC": 17,
+            "bose": {
+                "module": "GainCH",
+                "channel": 9,
+                "function": "GAIN"
+            }
+        },
+        "15": {
+            "name": "Knob 10",
+            "midiCC": 21,
+            "bose": {
+                "module": "GainCH",
+                "channel": 10,
+                "function": "GAIN"
+            }
+        },
+        "16": {
+            "name": "Knob 11",
+            "midiCC": 25,
+            "bose": {
+                "module": "GainCH",
+                "channel": 11,
+                "function": "GAIN"
+            }
+        },
+        "17": {
+            "name": "Knob 12",
+            "midiCC": 29,
+            "bose": {
+                "module": "GainCH",
+                "channel": 12,
+                "function": "GAIN"
+            }
+        },
+        "18": {
+            "name": "Knob 13",
+            "midiCC": 47,
+            "bose": {
+                "module": "GainCH",
+                "channel": 13,
+                "function": "GAIN"
+            }
+        },
+        "19": {
+            "name": "Knob 14",
+            "midiCC": 51,
+            "bose": {
+                "module": "GainCH",
+                "channel": 14,
+                "function": "GAIN"
             }
         }
     },
@@ -53,11 +196,7 @@
         "1": {
             "name": "Button_1",
             "midiNote": 1,
-            "ledFeedBack": "vmix",
-            "vmix": {
-                "input": "M",
-                "function": "TOGGLE_MUTE_CHANNEL"
-            },
+            "ledFeedBack": "bose",
             "bose": {
                 "channel": 1,
                 "function": "TOGGLE_MUTE_CHANNEL"
@@ -66,11 +205,7 @@
         "2": {
             "name": "Button_2",
             "midiNote": 4,
-            "ledFeedBack": "vmix",
-            "vmix": {
-                "input": "A",
-                "function": "BUSX_SEND_TO_MASTER"
-            },
+            "ledFeedBack": "bose",
             "bose": {
                 "channel": 2,
                 "function": "TOGGLE_MUTE_CHANNEL"
@@ -79,30 +214,91 @@
         "3": {
             "name": "Button_3",
             "midiNote": 7,
-            "ledFeedBack": "vmix",
-            "vmix": {
-                "input": "1",
-                "function": "SOLO"
-            },
+            "ledFeedBack": "bose",
             "bose": {
                 "channel": 3,
                 "function": "TOGGLE_MUTE_CHANNEL"
-            },
-            "mediaout": {
-                "function": "CUE"
             }
         },
         "4": {
             "name": "Button_4",
             "midiNote": 10,
-            "ledFeedBack": "vmix",
-            "vmix": {
-                "input": "G",
-                "function": "TOGGLE_MUTE_CHANNEL"
-            },
+            "ledFeedBack": "bose",
             "bose": {
                 "channel": 4,
                 "function": "TOGGLE_MUTE_CHANNEL"
+            }
+        },
+        "5": {
+            "name": "Button_5",
+            "midiNote": 13,
+            "ledFeedBack": "bose",
+            "bose": {
+                "channel": 5,
+                "function": "TOGGLE_MUTE_CHANNEL"
+            }
+        },
+        "6": {
+            "name": "Button_6",
+            "midiNote": 16,
+            "ledFeedBack": "bose",
+            "bose": {
+                "channel": 6,
+                "function": "TOGGLE_MUTE_CHANNEL"
+            }
+        },
+        "7": {
+            "name": "Button_7",
+            "midiNote": 19,
+            "ledFeedBack": "bose",
+            "bose": {
+                "channel": 7,
+                "function": "TOGGLE_MUTE_CHANNEL"
+            }
+        },
+        "8": {
+            "name": "Button_8",
+            "midiNote": 22,
+            "ledFeedBack": "bose",
+            "bose": {
+                "channel": 8,
+                "function": "TOGGLE_MUTE_CHANNEL"
+            }
+        },
+        "9": {
+            "name": "Button_9",
+            "midiNote": 3,
+            "ledFeedBack": "vmix",
+            "vmix": {
+                "input": "1",
+                "function": "TOGGLE_MUTE_CHANNEL"
+            }
+        },
+        "10": {
+            "name": "Button_10",
+            "midiNote": 6,
+            "ledFeedBack": "vmix",
+            "vmix": {
+                "input": 2,
+                "function": "TOGGLE_MUTE_CHANNEL"
+            }
+        },
+        "11": {
+            "name": "Button_11",
+            "midiNote": 9,
+            "ledFeedBack": "vmix",
+            "vmix": {
+                "input": "1",
+                "function": "AUDIO_BUS_A"
+            }
+        },
+        "12": {
+            "name": "Button_4",
+            "midiNote": 12,
+            "ledFeedBack": "vmix",
+            "vmix": {
+                "input": "2",
+                "function": "AUDIO_BUS_B"
             }
         }
     }

@@ -12,7 +12,7 @@ class BoseClient extends EventEmitter {
 
         this.socket = null;
         this.connected = false;
-
+        this.debug = false;
     }
 
     connect() {
@@ -82,35 +82,51 @@ class BoseClient extends EventEmitter {
         }
     }
 
+    setDebug(level){
+        this.debug = level;
+    }
+
     send(command){
         if(!this.connected)
             return;
 
         this.socket.write(command+"\r");
+        if (this.debug > 3) {console.log("Bose <===", command);}
     }
 
-    setGain(channel,value){
-        this.send(`SA "GainCH${channel}">1=${value}`);
+    setGain(module, channel, value){
+        switch (module) {
+            case "INPUT":
+                this.send(`SA "Input ${channel}">3=${value}`);
+                break;
+            case "GainCH":
+                this.send(`SA "${module}${channel}">1=${value}`);
+                break;
+        }
     }
 
-    mute(channel){
+    mute(channel) {
         this.send(`SA "GainCH${channel}">2=O`);
     }
 
-    unmute(channel){
+    unmute(channel) {
         this.send(`SA "GainCH${channel}">2=F`);
     }
 
-    toggleMute(channel){
+    toggleMute(channel) {
         this.send(`SA "GainCH${channel}">2=T`);
     }
 
-    subscribeMute(channel){
+    subscribeMute(channel) {
         this.send(`SUB "GA "GainCH${channel}">2"`)
     }
 
-    subscribeGain(channel){
+    subscribeGain(channel) {
         this.send(`SUB "GA "GainCH${channel}">1"`)
+    }
+
+    subscribePSTN() {
+        this.send(`SUB "GA "PSTN In 1">0>1"`);
     }
 }
 
