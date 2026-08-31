@@ -198,6 +198,7 @@
             "midiNote": 1,
             "ledFeedBack": "bose",
             "bose": {
+                "module": "GainCH",
                 "channel": 1,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -207,6 +208,7 @@
             "midiNote": 4,
             "ledFeedBack": "bose",
             "bose": {
+                "module": "GainCH",
                 "channel": 2,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -216,6 +218,7 @@
             "midiNote": 7,
             "ledFeedBack": "bose",
             "bose": {
+                "module": "GainCH",
                 "channel": 3,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -225,6 +228,7 @@
             "midiNote": 10,
             "ledFeedBack": "bose",
             "bose": {
+                "module": "GainCH",
                 "channel": 4,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -234,6 +238,7 @@
             "midiNote": 13,
             "ledFeedBack": "bose",
             "bose": {
+                "module": "GainCH",
                 "channel": 5,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -243,6 +248,7 @@
             "midiNote": 16,
             "ledFeedBack": "bose",
             "bose": {
+                "module": "GainCH",
                 "channel": 6,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -252,6 +258,7 @@
             "midiNote": 19,
             "ledFeedBack": "bose",
             "bose": {
+                "module": "GainCH",
                 "channel": 7,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -261,6 +268,7 @@
             "midiNote": 22,
             "ledFeedBack": "bose",
             "bose": {
+                "module": "GainCH",
                 "channel": 8,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -293,12 +301,22 @@
             }
         },
         "12": {
-            "name": "Button_4",
+            "name": "Button_12",
             "midiNote": 12,
             "ledFeedBack": "vmix",
             "vmix": {
                 "input": "2",
                 "function": "AUDIO_BUS_B"
+            }
+        },
+        "13": {
+            "name": "PSTN",
+            "midiNote": 26,
+            "ledFeedBack": "bose",
+            "bose": {
+                "module": "PSTN In 1",
+                "channel": 1,
+                "function": "ANSWER_END_CALL"
             }
         }
     }

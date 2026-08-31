@@ -12,6 +12,7 @@ class BoseClient extends EventEmitter {
 
         this.socket = null;
         this.connected = false;
+        this.callStatus = "HAGUP"
         this.debug = false;
     }
 
@@ -127,6 +128,26 @@ class BoseClient extends EventEmitter {
 
     subscribePSTN() {
         this.send(`SUB "GA "PSTN In 1">0>1"`);
+    }
+
+    pstnAswerCall() {
+        this.send(`MA "PSTN In 1">4`);
+    }
+
+    pstnEndCall() {
+        this.send(`MA "PSTN In 1">3`);
+    }
+
+    pstnAnswerEndCall() {
+        if (this.callStaus === "INCOMING") {
+            this.pstnAswerCall();
+        } else if (this.callStaus === "ACTIVE") {
+            this.pstnEndCall();
+        }
+    }
+
+    setCallStatus(status) {
+        this.callStatus = status;
     }
 }
 

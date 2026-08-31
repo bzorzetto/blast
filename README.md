@@ -124,3 +124,6 @@ Mute:
 : MUTE_CHANNEL         // Mute specific channel 
 : UNMUTE_CHANNEL       // Unmute specific channel
 : TOGGLE_MUTE_CHANNEL  // Toggle mute of specific channel
+
+PSTN:
+: ANSWER_END_CALL

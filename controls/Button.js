@@ -5,11 +5,16 @@ class Button{
         this.midiNote=config.midiNote;
         this.vmixChannel=config.vmixChannel;
         this.boseChannel=config.boseChannel;
+        this.boseModule=config.boseModule;
         this.mediaoutCommand=config.mediaOutCommand;
         this.buttonActions=config.buttonActions || {};
         this.ledFeedBack=config.ledFeedBack; 
+        this.ledBlink=false;
         this.value = 0;
         this.state = false;
+
+        
+
     }
 
     setValue(value){
@@ -22,6 +27,12 @@ class Button{
 
         if (this.ledFeedBack === origin){this.state = state};
 
+    }
+
+    setLedBlink(value) {
+
+        this.ledBlink = value;
+    
     }
 
     getValue(){

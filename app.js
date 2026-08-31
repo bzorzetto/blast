@@ -152,6 +152,7 @@ Object.keys(config.buttons).forEach(buttonId => {
         midiNote: buttonConfig.midiNote,
         vmixChannel: buttonConfig.vmix?.input,
         boseChannel: buttonConfig.bose?.channel,
+        boseModule: buttonConfig.bose?.module,
         ledFeedBack: buttonConfig.ledFeedBack,
         buttonActions
     });
@@ -318,6 +319,7 @@ bose.on("data", data => {
 
     const messages = data.split(";");
     
+    
     messages.forEach(msg => {
         midi.controls.forEach(control => {
             // Gestione sato "muted"    
@@ -326,10 +328,18 @@ bose.on("data", data => {
             } else if (control instanceof Button && msg === `GA"GainCH${control.boseChannel}">2=O`) {
                 control.setState("bose", true);
             }
+            if (control instanceof Button && control.boseModule === "PSTN In 1" && bose.callStatus === "INCOMING") {
+                //control.setState("bose", true);
+                
+            } else {
+                //control.setState("bose", false);
+                console.log(control.boseModule);
+            }
         });
 
-        if (msg === `GA"PSTN In 1">0>1="INCOMING"`){
-            console.log("CHIAMATAAAAAAAAAA");
+        const pstn = msg.match(/INCOMING|HANGUP|ACTIVE/);
+        if (pstn[0]) { 
+            bose.setCallStatus(pstn[0]);
         }
     });
 });
@@ -350,19 +360,38 @@ setInterval(() => {
     vmix.updateStatus();
 }, 200);
 
+
 // Updae MIDI leds
+let on = 0;
 setInterval(() => {
     var muted = Boolean;
+    
+    on++;
+
     midi.controls.forEach(control => {
         if (control instanceof Button) {
             muted = control.getState();
+            // Stato "muted"
             if (!muted) {
                 midi.send(config.midi.output, [0x90, control.midiNote, 0]);
             } else if (muted) {
                 midi.send(config.midi.output, [0x90, control.midiNote, 127]);
             }
-        }    
+            // Lampeggio led
+            if (control.ledBlink) {
+                if (muted && on > 1) {
+                    midi.send(config.midi.output, [0x90, control.midiNote, 0]); 
+                } else if (muted) {
+                    midi.send(config.midi.output, [0x90, control.midiNote, 127]);
+                }
+            }
+        }     
+           
     });
-}, 200);
+
+    if (on > 1 ) {on = 0};
+
+}, 100);
+
 
 console.log("System started.");
