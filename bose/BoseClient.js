@@ -12,7 +12,7 @@ class BoseClient extends EventEmitter {
 
         this.socket = null;
         this.connected = false;
-        this.callStatus = "HAGUP"
+        this.callStatus = "HANGUP"
         this.debug = false;
     }
 

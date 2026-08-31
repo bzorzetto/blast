@@ -305,7 +305,7 @@ bose.on("connected", msg => {
             bose.subscribeMute(control.boseChannel);
         }
     });
-    bose.subscribePSTN(); // by default we subscribe to PSTN input just to get incoming call
+    bose.subscribePSTN(); // by default we subscribe to PSTN input just to be informed of incoming call
 });   
 
 
@@ -319,8 +319,14 @@ bose.on("data", data => {
 
     const messages = data.split(";");
     
-    
     messages.forEach(msg => {
+        
+        const pstn = msg.match(/INCOMING|HANGUP|ACTIVE/) || false;
+        
+        if (pstn[0]) { 
+            bose.setCallStatus(pstn[0]);
+        }
+
         midi.controls.forEach(control => {
             // Gestione sato "muted"    
             if (control instanceof Button && msg === `GA"GainCH${control.boseChannel}">2=F`) {
@@ -328,20 +334,16 @@ bose.on("data", data => {
             } else if (control instanceof Button && msg === `GA"GainCH${control.boseChannel}">2=O`) {
                 control.setState("bose", true);
             }
+            // Gestione PSTN in caso di chiamta fa lampeggiare il led corrispondente
             if (control instanceof Button && control.boseModule === "PSTN In 1" && bose.callStatus === "INCOMING") {
-                //control.setState("bose", true);
-                
-            } else {
-                //control.setState("bose", false);
-                console.log(control.boseModule);
+                control.setLedBlink(true);
+            } else if (control instanceof Button && control.boseModule === "PSTN In 1" && bose.callStatus === "HANGUP") {
+                control.setLedBlink(false);
             }
         });
-
-        const pstn = msg.match(/INCOMING|HANGUP|ACTIVE/);
-        if (pstn[0]) { 
-            bose.setCallStatus(pstn[0]);
-        }
+       
     });
+    
 });
 
 
@@ -379,9 +381,9 @@ setInterval(() => {
             }
             // Lampeggio led
             if (control.ledBlink) {
-                if (muted && on > 1) {
+                if (on > 1) {
                     midi.send(config.midi.output, [0x90, control.midiNote, 0]); 
-                } else if (muted) {
+                } else {
                     midi.send(config.midi.output, [0x90, control.midiNote, 127]);
                 }
             }
