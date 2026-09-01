@@ -151,6 +151,7 @@ Object.keys(config.buttons).forEach(buttonId => {
 
         midiNote: buttonConfig.midiNote,
         vmixChannel: buttonConfig.vmix?.input,
+        vmixValue: buttonConfig.vmix?.value,
         boseChannel: buttonConfig.bose?.channel,
         boseModule: buttonConfig.bose?.module,
         ledFeedBack: buttonConfig.ledFeedBack,
@@ -203,7 +204,7 @@ midi.on("noteon", msg => {
                if (action === "mediaout") {
                    mediaout.send(control.getButtonActions()[action]);
                } else if (action === "vmix" && control.vmixChannel) {
-                   vmix.doCommand({type: control.getButtonActions()[action], input: control.vmixChannel});
+                   vmix.doCommand({type: control.getButtonActions()[action], input: control.vmixChannel, value: control.vmixValue});
                } else if (action === "bose" && control.boseChannel) {
                    bose.doCommand({module: control.boseModule, type: control.getButtonActions()[action], input: control.boseChannel});
                }
@@ -281,7 +282,13 @@ vmix.on("status", status => {
                     if (channel.includes(control.vmixChannel) && control.buttonActions.vmix.includes("BUSX")) {
                         control.setState("vmix", sendToMaster);
                     }
-
+        // Gestione transizioni Wipe e Cut
+                if (control.buttonActions.vmix.includes("WIPE")) {
+                    
+                } 
+                if (control.buttonActions.vmix.includes("CUT")) {
+                    
+                }
                 });
             }
         });

@@ -208,7 +208,7 @@
             "midiNote": 4,
             "ledFeedBack": "bose",
             "bose": {
-                "module": "GainCH",
+                "module": "Input ",
                 "channel": 2,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -218,7 +218,7 @@
             "midiNote": 7,
             "ledFeedBack": "bose",
             "bose": {
-                "module": "GainCH",
+                "module": "Input ",
                 "channel": 3,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -228,7 +228,7 @@
             "midiNote": 10,
             "ledFeedBack": "bose",
             "bose": {
-                "module": "GainCH",
+                "module": "Input ",
                 "channel": 4,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -238,7 +238,7 @@
             "midiNote": 13,
             "ledFeedBack": "bose",
             "bose": {
-                "module": "GainCH",
+                "module": "Input ",
                 "channel": 5,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -248,7 +248,7 @@
             "midiNote": 16,
             "ledFeedBack": "bose",
             "bose": {
-                "module": "GainCH",
+                "module": "Input ",
                 "channel": 6,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -258,7 +258,7 @@
             "midiNote": 19,
             "ledFeedBack": "bose",
             "bose": {
-                "module": "GainCH",
+                "module": "Input ",
                 "channel": 7,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -268,7 +268,7 @@
             "midiNote": 22,
             "ledFeedBack": "bose",
             "bose": {
-                "module": "GainCH",
+                "module": "Input ",
                 "channel": 8,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
@@ -279,7 +279,8 @@
             "ledFeedBack": "vmix",
             "vmix": {
                 "input": "1",
-                "function": "TOGGLE_MUTE_CHANNEL"
+                "function": "WIPE",
+                "value": "1000"
             }
         },
         "10": {
@@ -288,7 +289,8 @@
             "ledFeedBack": "vmix",
             "vmix": {
                 "input": 2,
-                "function": "TOGGLE_MUTE_CHANNEL"
+                "function": "CUT",
+                "value": "1000"
             }
         },
         "11": {

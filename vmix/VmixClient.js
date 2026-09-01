@@ -162,6 +162,12 @@ class VmixClient extends EventEmitter {
             case "AUDIO_BUS_G":
                 this.audioBus(command.input, "G");
                 break;
+            case "CUT":
+                this.send(`FUNCTION Cut Input=${command.input}&Value=${command.value}`);
+                break;
+            case "WIPE":
+                this.send(`FUNCTION Wipe Input=${command.input}&Value=${command.value}`);
+                break;
             default:
                 console.log("Vmix Client: Unknown command type: " + command.type);
             }
