@@ -28,7 +28,7 @@
                 "function": "VOLUME"
             },
             "bose": {
-                "module": "INPUT",
+                "module": "Input ",
                 "channel": 1,
                 "function": "LEVEL"   
             }
@@ -198,7 +198,7 @@
             "midiNote": 1,
             "ledFeedBack": "bose",
             "bose": {
-                "module": "GainCH",
+                "module": "Input ",
                 "channel": 1,
                 "function": "TOGGLE_MUTE_CHANNEL"
             }

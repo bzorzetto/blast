@@ -62,24 +62,80 @@ class BoseClient extends EventEmitter {
 
         if(!this.connected)
             return;
+        switch(command.module) {
+            case "GainCH":
+                switch(command.type) {
+                    case "MUTE_CHANNEL":
+                        this.send(`SA "${command.module}${command.input}">2=O`);
+                        break;
 
-        switch(command.type) {
+                    case "UNMUTE_CHANNEL":
+                        this.send(`SA "${command.module}${command.input}">2=F`);
+                        break;
 
-            case "MUTE_CHANNEL":
-                this.mute(command.input);
+                    case "TOGGLE_MUTE_CHANNEL":
+                        this.send(`SA "${command.module}${command.input}">2=T`);
+                        break;
+                    case "SUBSCRIBE_GAIN":
+                        //this.subscribeGainGain(command.input);
+                        this.send(`SUB "GA "${command.module}${command.input}">1"`)
+                        break;
+                    case "SUBSCRIBE_MUTE":
+                        //this.subscribeGainMute(command.input);
+                        this.send(`SUB "GA "${command.module}${command.input}">2"`)
+                        break;
+                    default:
+                        console.log("Bose Client: Unknown command type: " + command.module + " " + command.type);
+                        break;
+                    }
                 break;
-
-            case "UNMUTE_CHANNEL":
-                this.unmute(command.input);
+            case "Input ":
+                switch(command.type) {
+                    case "MUTE_CHANNEL":
+                        this.send(`SA "${command.module}${command.input}">4=O`);
+                        break;
+                    case "UNMUTE_CHANNEL":
+                        this.send(`SA "${command.module}${command.input}">4=F`);
+                        break;
+                    case "TOGGLE_MUTE_CHANNEL":
+                        this.send(`SA "${command.module}${command.input}">4=T`);
+                        break;
+                    case "SUBSCRIBE_GAIN":
+                        this.send(`SUB "GA "${command.module}${command.input}">3"`)
+                        break;
+                    case "SUBSCRIBE_MUTE":    
+                        this.send(`SUB "GA "${command.module}${command.input}">4"`)
+                    default:
+                        console.log("Bose Client: Unknown command type: " + command.module + " " + command.type);
+                        break;
+                }
                 break;
-
-            case "TOGGLE_MUTE_CHANNEL":
-                this.toggleMute(command.input);
-                break;
-
-            default:
-                console.log("Bose Client: Unknown command type: " + command.type);
-                break;
+            case "PSTN In 1":
+                switch(command.type) {
+                    case "ANSWER_END_CALL":
+                        //this.pstnAnswerEndCall();
+                        if (this.callStatus === "INCOMING") {
+                            this.send(`MA "PSTN In 1">4`);
+                            //this.pstnAnswerCall();
+                        } else if (this.callStatus === "IN CALL") {
+                            this.send(`MA "PSTN In 1">3`);
+                            //this.pstnEndCall();
+                        }      
+                        break;
+                    case "SUBSCRIBE_CALL_STATUS":
+                        this.send(`SUB "GA "PSTN In 1">0>1"`);
+                        //this.subscribePSTN();
+                        break;
+                    case "ANSWER_CALL":
+                        this.send(`MA "PSTN In 1">4`);
+                        break;
+                    case "END_CALL":
+                        this.send(`MA "PSTN In 1">3`);
+                        break;
+                    default:
+                        console.log("Bose Client: Unknown command type: " + command.module + " " + command.type);
+                        break;
+            }
         }
     }
 
@@ -97,8 +153,8 @@ class BoseClient extends EventEmitter {
 
     setGain(module, channel, value){
         switch (module) {
-            case "INPUT":
-                this.send(`SA "Input ${channel}">3=${value}`);
+            case "Input ":
+                this.send(`SA "${module}${channel}">3=${value}`);
                 break;
             case "GainCH":
                 this.send(`SA "${module}${channel}">1=${value}`);
@@ -106,45 +162,29 @@ class BoseClient extends EventEmitter {
         }
     }
 
-    mute(channel) {
-        this.send(`SA "GainCH${channel}">2=O`);
-    }
+    
+    //subscribePSTN() {
+    //    this.send(`SUB "GA "PSTN In 1">0>1"`);
+    //}
 
-    unmute(channel) {
-        this.send(`SA "GainCH${channel}">2=F`);
-    }
+    //pstnAnswerCall() {
+    //    this.send(`MA "PSTN In 1">4`);
+    //}
 
-    toggleMute(channel) {
-        this.send(`SA "GainCH${channel}">2=T`);
-    }
+    //pstnEndCall() {
+    //    this.send(`MA "PSTN In 1">3`);
+    //}
 
-    subscribeMute(channel) {
-        this.send(`SUB "GA "GainCH${channel}">2"`)
-    }
-
-    subscribeGain(channel) {
-        this.send(`SUB "GA "GainCH${channel}">1"`)
-    }
-
-    subscribePSTN() {
-        this.send(`SUB "GA "PSTN In 1">0>1"`);
-    }
-
-    pstnAswerCall() {
-        this.send(`MA "PSTN In 1">4`);
-    }
-
-    pstnEndCall() {
-        this.send(`MA "PSTN In 1">3`);
-    }
-
-    pstnAnswerEndCall() {
-        if (this.callStaus === "INCOMING") {
-            this.pstnAswerCall();
-        } else if (this.callStaus === "ACTIVE") {
-            this.pstnEndCall();
-        }
-    }
+    //pstnAnswerEndCall() {
+     
+    //    if (this.callStatus === "INCOMING") {
+    //        if (this.debug > 2) {console.log("Chiamata in arrivo, rispondo");}
+    //        this.pstnAnswerCall();
+    //    } else if (this.callStatus === "IN CALL") {
+    //        if (this.debug > 2) {console.log("Chiamata in corso, termino");} 
+    //        this.pstnEndCall();
+    //    }
+    //}
 
     setCallStatus(status) {
         this.callStatus = status;

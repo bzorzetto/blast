@@ -205,7 +205,7 @@ midi.on("noteon", msg => {
                } else if (action === "vmix" && control.vmixChannel) {
                    vmix.doCommand({type: control.getButtonActions()[action], input: control.vmixChannel});
                } else if (action === "bose" && control.boseChannel) {
-                   bose.doCommand({type: control.getButtonActions()[action], input: control.boseChannel});
+                   bose.doCommand({module: control.boseModule, type: control.getButtonActions()[action], input: control.boseChannel});
                }
            });
        }
@@ -296,16 +296,19 @@ vmix.on("status", status => {
 // Evento connessione Bose     //
 // ----------------------------//
 bose.on("connected", msg => {
-    // Do subscriptions to Bose cahannels to get feedback from
+    // Do subscriptions to Bose cahannels Gainx module to get feedback from
     midi.controls.forEach(control => {
-        if (control instanceof Slider && control.boseChannel) {
-            bose.subscribeGain(control.boseChannel);
+        if (control instanceof Slider && control.boseModule && control.boseChannel) {
+            //bose.subscribeGainGain(control.boseChannel);
+            bose.doCommand({module: control.boseModule, type: "SUBSCRIBE_GAIN", input: control.boseChannel});
         }
-        if (control instanceof Button && control.boseChannel) {
-            bose.subscribeMute(control.boseChannel);
+        if (control instanceof Button && control.boseModule && control.boseChannel) {
+            //bose.subscribeGainMute(control.boseChannel);
+            bose.doCommand({module: control.boseModule, type: "SUBSCRIBE_MUTE", input: control.boseChannel});
         }
     });
-    bose.subscribePSTN(); // by default we subscribe to PSTN input just to be informed of incoming call
+    //bose.subscribePSTN(); // by default we subscribe to PSTN input just to be informed of incoming call
+    bose.doCommand({module: "PSTN In 1", type: "SUBSCRIBE_CALL_STATUS"}); // by default we subscribe to PSTN input just to be informed of incoming call
 });   
 
 
@@ -314,31 +317,45 @@ bose.on("connected", msg => {
 // ----------------------------//
 
 bose.on("data", data => {
+ 
+    const messages = data.split(";");  // Split the message into individual messages based on the semicolon delimiter
 
-    if (debug > 3) {console.log("Bose ===> :", data)};
+    if (debug > 3) {console.log("Bose ===> :", messages)};
 
-    const messages = data.split(";");
-    
     messages.forEach(msg => {
         
-        const pstn = msg.match(/INCOMING|HANGUP|ACTIVE/) || false;
+        // Set the call status based on the message received from Bose
+        const pstn = msg.match(/INCOMING|HANGUP|IN CALL/) || false;
         
         if (pstn[0]) { 
             bose.setCallStatus(pstn[0]);
         }
+        //------------------------------------------------------------
 
         midi.controls.forEach(control => {
-            // Gestione sato "muted"    
-            if (control instanceof Button && msg === `GA"GainCH${control.boseChannel}">2=F`) {
+            // Gestione sato "muted" dei moduli Bose GainCHx   
+            if (control instanceof Button && msg === `GA"${control.boseModule}${control.boseChannel}">2=F`) {
                 control.setState("bose", false);
-            } else if (control instanceof Button && msg === `GA"GainCH${control.boseChannel}">2=O`) {
+            } else if (control instanceof Button && msg === `GA"${control.boseModule}${control.boseChannel}">2=O`) {
                 control.setState("bose", true);
             }
+            
+            // Gestione sato "muted" dei moduli Bose Inputx
+            if (control instanceof Button && msg === `GA"${control.boseModule}${control.boseChannel}">4=F`) {
+                control.setState("bose", false);
+            } else if (control instanceof Button && msg === `GA"${control.boseModule}${control.boseChannel}">4=O`) {
+                control.setState("bose", true);
+            }
+
             // Gestione PSTN in caso di chiamta fa lampeggiare il led corrispondente
             if (control instanceof Button && control.boseModule === "PSTN In 1" && bose.callStatus === "INCOMING") {
                 control.setLedBlink(true);
+            } else if (control instanceof Button && control.boseModule === "PSTN In 1" && bose.callStatus === "IN CALL") {
+                control.setLedBlink(false);
+                control.setState("bose", true);
             } else if (control instanceof Button && control.boseModule === "PSTN In 1" && bose.callStatus === "HANGUP") {
                 control.setLedBlink(false);
+                control.setState("bose", false);
             }
         });
        

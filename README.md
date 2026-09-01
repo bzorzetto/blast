@@ -97,6 +97,10 @@ Definizione pulsanti e relative funzioni
         }
     }
 
+Funzioni Sliders:
+
+: Volume - vMix        // (Unused now, maybe in the future)
+: Gain - Bose          // (Unused now, maybe in the future) 
 
 Funzioni Pulsanti vMix:
 
@@ -112,18 +116,25 @@ Bus:
 Solo:
 : SOLO                 // Solo specific audio channel (TOGGLE)
 
-Funzioni Sliders:
 
-: Volume - vMix        // (Unused now, maybe in the future)
-: Gain - Bose          // (Unused now, maybe in the future) 
+Funzioni pulsanti per i moduli Bose:
 
-
-Funzioni Pulsanti Bose:
-
-Mute:
+"Input X":             // Analog input were X = 1 | 2 | 3 etc
 : MUTE_CHANNEL         // Mute specific channel 
 : UNMUTE_CHANNEL       // Unmute specific channel
 : TOGGLE_MUTE_CHANNEL  // Toggle mute of specific channel
+: SUBSCRIBE_MUTE       // Subscribe to module to get unsolicited update data change
+: SUBSCRIBE_GAIN       // Subscribe to module to get unsolicited update data change
 
-PSTN:
-: ANSWER_END_CALL
+"GainCHX":             // Gain module were X = 1 | 2 | 3 etc
+: MUTE_CHANNEL         // Mute specific channel 
+: UNMUTE_CHANNEL       // Unmute specific channel
+: TOGGLE_MUTE_CHANNEL  // Toggle mute of specific channel
+: SUBSCRIBE_MUTE       // Subscribe to module to get unsolicited update data change
+: SUBSCRIBE_GAIN       // Subscribe to module to get unsolicited update data change
+
+"PSTN In 1":
+: ANSWER_END_CALL       // Toggle call state
+: END_CALL              // End active call
+: ANSWER_CALL           // Answer incoming call
+: SUBSCRIBE_CALL_STATUS // Subscribe to module to get unsolicited update data change 
