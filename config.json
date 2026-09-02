@@ -28,6 +28,7 @@
             "name": "Master",
             "midiCC": 62,
             "vmix": {
+                "type": "audio",
                 "input": "M",
                 "function": "VOLUME"
             },
@@ -41,6 +42,7 @@
             "name": "Slider_1",
             "midiCC": 19,
             "vmix": {
+                "type": "audio",
                 "input": 1,
                 "function": "Volume"
             }
@@ -49,6 +51,7 @@
             "name": "Slider_2",
             "midiCC": 23,
             "vmix": {
+                "type": "audio",
                 "input": 2,
                 "function": "Volume"
             }
@@ -57,6 +60,7 @@
             "name": "Slider_3",
             "midiCC": 27,
             "vmix": {
+                "type": "audio",
                 "input": "A",
                 "function": "Volume"
             }
@@ -65,6 +69,7 @@
             "name": "Slider_4",
             "midiCC": 31,
             "vmix": {
+                "type": "audio",
                 "input": "B",
                 "function": "Volume"
             }
@@ -282,6 +287,7 @@
             "midiNote": 3,
             "ledFeedBack": "vmix",
             "vmix": {
+                "type": "transition",
                 "input": 1,
                 "function": "WIPE",
                 "value": "1000"
@@ -292,9 +298,10 @@
             "midiNote": 6,
             "ledFeedBack": "vmix",
             "vmix": {
+                "type": "transition",
                 "input": 2,
                 "function": "CUT",
-                "value": "1000"
+                "value": "0"
             }
         },
         "11": {
@@ -302,6 +309,7 @@
             "midiNote": 9,
             "ledFeedBack": "vmix",
             "vmix": {
+                "type": "audio",
                 "input": 1,
                 "function": "AUDIO_BUS_A"
             }
@@ -311,6 +319,7 @@
             "midiNote": 12,
             "ledFeedBack": "vmix",
             "vmix": {
+                "type": "audio",
                 "input": 2,
                 "function": "AUDIO_BUS_B"
             }

@@ -11,7 +11,6 @@ class Blast extends EventEmitter {
         this.timer = null;
         this.inputs = null;
         this.input = 0;
-        this.state = false;
     }
 
     doCommand(command) {
@@ -43,9 +42,7 @@ class Blast extends EventEmitter {
         }
     }
     
-    setState(state) {
-        this.state = state;
-    }
+    
 }
 
 module.exports = Blast;

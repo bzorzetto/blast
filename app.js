@@ -153,6 +153,7 @@ Object.keys(config.buttons).forEach(buttonId => {
     const button = new Button({
 
         midiNote: buttonConfig.midiNote,
+        vmixType: buttonConfig.vmix?.type,
         vmixChannel: buttonConfig.vmix?.input,
         vmixValue: buttonConfig.vmix?.value,
         boseChannel: buttonConfig.bose?.channel,
@@ -214,7 +215,6 @@ midi.on("noteon", msg => {
                    bose.doCommand({module: control.boseModule, type: control.getButtonActions()[action], input: control.boseChannel});
                } else if (action === "blast" && control.blastType) {
                    blast.doCommand({function: control.getButtonActions()[action], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
-                   console.log("Blast command sent: ", control.getButtonActions()[action], control.blastParameters.delay, control.blastParameters.inputs);
                }
                
            });
@@ -389,11 +389,16 @@ bose.on("data", data => {
 });
 
 blast.on("switch_now", input => {
-    console.log("Blast switch_now event received. Input: ", input);
+
+    if (debug) {console.log("Blast ===> switch_now Input: ", input)};
+
     midi.controls.forEach(control => {
             // Gestione sato "cam_autoswitch" attivo
-            if (control instanceof Button && control.vmixChannel === input) {
-                console.log(control.getButtonActions().vmix)
+            if (control instanceof Button && control.vmixChannel === input && control.vmixType === "transition") {
+                vmix.doCommand({type: control.getButtonActions().vmix, input: control.vmixChannel, value: control.vmixValue});
+            }
+            if (control.midiNote === 25 && control.getButtonActions().blast === "CAM_AUTOSWITCH") {
+                control.setState("blast", true);
             }
         });
 });
