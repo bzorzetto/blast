@@ -1,4 +1,8 @@
 {
+    "blast": {
+        "autoswitchDelay": 30,
+        "autoswitchInputs": [1, 2]
+    },
     "hosts": {
         "vmix": {
             "host": "127.0.0.1",
@@ -37,7 +41,7 @@
             "name": "Slider_1",
             "midiCC": 19,
             "vmix": {
-                "input": "1",
+                "input": 1,
                 "function": "Volume"
             }
         },
@@ -45,7 +49,7 @@
             "name": "Slider_2",
             "midiCC": 23,
             "vmix": {
-                "input": "2",
+                "input": 2,
                 "function": "Volume"
             }
         },
@@ -278,7 +282,7 @@
             "midiNote": 3,
             "ledFeedBack": "vmix",
             "vmix": {
-                "input": "1",
+                "input": 1,
                 "function": "WIPE",
                 "value": "1000"
             }
@@ -298,7 +302,7 @@
             "midiNote": 9,
             "ledFeedBack": "vmix",
             "vmix": {
-                "input": "1",
+                "input": 1,
                 "function": "AUDIO_BUS_A"
             }
         },
@@ -307,7 +311,7 @@
             "midiNote": 12,
             "ledFeedBack": "vmix",
             "vmix": {
-                "input": "2",
+                "input": 2,
                 "function": "AUDIO_BUS_B"
             }
         },
@@ -319,6 +323,19 @@
                 "module": "PSTN In 1",
                 "channel": 1,
                 "function": "ANSWER_END_CALL"
+            }
+        },
+        "14": {
+            "name": "Autoswitch",
+            "midiNote": 25,
+            "ledFeedBack": "blast",
+            "blast": {
+                "type": "command",
+                "function": "CAM_AUTOSWITCH",
+                "parameters": {
+                    "delay": 3000,
+                    "inputs": [1, 2]
+                }
             }
         }
     }

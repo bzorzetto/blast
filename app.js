@@ -7,6 +7,7 @@ const MediaoutClient = require('./mediaout/MediaoutClient');
 const Slider = require('./controls/Slider');
 const Button = require('./controls/Button');
 const AudioConverter = require('./utils/AudioConverter');
+const Blast = require('./utils/blast');
 const MediaoutCommand = require('./mediaout/MediaoutActions');
 
 
@@ -106,6 +107,7 @@ midi.openOutput(output.name);
 const vmix = new VmixClient(config.hosts.vmix.host, config.hosts.vmix.apiPort, config.hosts.vmix.webPort);
 const bose = new BoseClient(config.hosts.bose.host, config.hosts.bose.port);
 const mediaout = new MediaoutClient(config.hosts.mediaout.host, config.hosts.mediaout.portTx, config.hosts.mediaout.portRx);
+const blast = new Blast();
 
 vmix.connect();
 bose.connect();
@@ -139,7 +141,8 @@ Object.keys(config.buttons).forEach(buttonId => {
     // Prepara le azioni del pulsante
     const buttonActions = {
         vmix: buttonConfig.vmix?.function,
-        bose: buttonConfig.bose?.function
+        bose: buttonConfig.bose?.function,
+        blast: buttonConfig.blast?.function
     };
 
     if (buttonConfig.mediaout?.function) {
@@ -154,6 +157,8 @@ Object.keys(config.buttons).forEach(buttonId => {
         vmixValue: buttonConfig.vmix?.value,
         boseChannel: buttonConfig.bose?.channel,
         boseModule: buttonConfig.bose?.module,
+        blastType: buttonConfig.blast?.type,
+        blastParameters: buttonConfig.blast?.parameters,
         ledFeedBack: buttonConfig.ledFeedBack,
         buttonActions
     });
@@ -207,7 +212,11 @@ midi.on("noteon", msg => {
                    vmix.doCommand({type: control.getButtonActions()[action], input: control.vmixChannel, value: control.vmixValue});
                } else if (action === "bose" && control.boseChannel) {
                    bose.doCommand({module: control.boseModule, type: control.getButtonActions()[action], input: control.boseChannel});
+               } else if (action === "blast" && control.blastType) {
+                   blast.doCommand({function: control.getButtonActions()[action], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
+                   console.log("Blast command sent: ", control.getButtonActions()[action], control.blastParameters.delay, control.blastParameters.inputs);
                }
+               
            });
        }
     });
@@ -244,6 +253,7 @@ mediaout.on("message", msg => {
 
 vmix.on("status", status => {
     
+    
     if (debug > 4) {console.log("Vmix ===> :", status)};
 
         const inputs = status.vmix.inputs.input;
@@ -253,10 +263,13 @@ vmix.on("status", status => {
         midi.controls.forEach(control => {
         // Gestione dello stato "muted" degli ingressi  
             if ((control instanceof Button) && !(control.vmixChannel === undefined)) { 
-                const input = inputs.find( input => input.number === String(control.vmixChannel) );
-                if (input && control.buttonActions.vmix.includes("MUTE")) { 
-                    const muted = input.muted === "True"; 
-                    control.setState("vmix", muted);
+                try {
+                    const input = inputs.find( input => input.number === String(control.vmixChannel) );
+                    if (input && control.buttonActions.vmix.includes("MUTE")) { 
+                        const muted = input.muted === "True"; 
+                        control.setState("vmix", muted);
+                    }
+                } catch {
                 }
         // Gestione dello stato "solo" degli ingressi        
                 if (input && control.buttonActions.vmix.includes("SOLO")) { 
@@ -265,8 +278,11 @@ vmix.on("status", status => {
                 }
         // Gestione subgruppi ingressi 
                 if (input && control.buttonActions.vmix.includes("BUS")) {
-                    const audiobus = input.audiobusses.includes(control.buttonActions.vmix.substr(10, 1)); 
-                    control.setState("vmix", audiobus);
+                    try {
+                        const audiobus = input.audiobusses.includes(control.buttonActions.vmix.substr(10, 1)); 
+                        control.setState("vmix", audiobus);
+                    } catch {
+                    }
                 }
         // Gestione stati del Master e dei sub gruppi audio A,B,C,D,E,F e G
                 Object.entries(busses).forEach(([channel, data]) => {
@@ -282,14 +298,16 @@ vmix.on("status", status => {
                     if (channel.includes(control.vmixChannel) && control.buttonActions.vmix.includes("BUSX")) {
                         control.setState("vmix", sendToMaster);
                     }
-        // Gestione transizioni Wipe e Cut
-                if (control.buttonActions.vmix.includes("WIPE")) {
                     
-                } 
-                if (control.buttonActions.vmix.includes("CUT")) {
-                    
-                }
                 });
+        // Gestione transizioni Wipe e Cut
+                const activeInput = status.vmix.active;
+                if (activeInput && control.vmixChannel === activeInput && (control.buttonActions.vmix.includes("WIPE") || control.buttonActions.vmix.includes("CUT"))) {
+                    control.setState("vmix", true);
+                } else if (activeInput && control.vmixChannel !== activeInput && (control.buttonActions.vmix.includes("WIPE") || control.buttonActions.vmix.includes("CUT"))) {
+                    control.setState("vmix", false);
+                }
+                
             }
         });
     } catch(error) {
@@ -370,7 +388,15 @@ bose.on("data", data => {
     
 });
 
-
+blast.on("switch_now", input => {
+    console.log("Blast switch_now event received. Input: ", input);
+    midi.controls.forEach(control => {
+            // Gestione sato "cam_autoswitch" attivo
+            if (control instanceof Button && control.vmixChannel === input) {
+                console.log(control.getButtonActions().vmix)
+            }
+        });
+});
 
 // ----------------------------//
 // Timers                      //

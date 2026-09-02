@@ -9,6 +9,8 @@ class Button{
         this.mediaoutCommand=config.mediaOutCommand;
         this.buttonActions=config.buttonActions || {};
         this.ledFeedBack=config.ledFeedBack; 
+        this.blastType = config.blastType;
+        this.blastParameters = config.blastParameters;
         this.ledBlink=false;
         this.value = 0;
         this.state = false;
