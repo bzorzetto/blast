@@ -44,7 +44,7 @@
             "vmix": {
                 "type": "audio",
                 "input": 1,
-                "function": "Volume"
+                "function": "VOLUME"
             }
         },
         "3": {
@@ -199,6 +199,15 @@
                 "channel": 14,
                 "function": "GAIN"
             }
+        },
+        "20": {
+            "name": "Knob 15 Cuffie",
+            "midiCC": 60,
+            "vmix": {
+                "type": "audio",
+                "input": "Headphones",
+                "function": "VOLUME"
+            }
         }
     },
     "buttons":{
@@ -311,7 +320,7 @@
             "vmix": {
                 "type": "audio",
                 "input": 1,
-                "function": "AUDIO_BUS_A"
+                "function": "PLAY"
             }
         },
         "12": {
@@ -320,8 +329,8 @@
             "ledFeedBack": "vmix",
             "vmix": {
                 "type": "audio",
-                "input": 2,
-                "function": "AUDIO_BUS_B"
+                "input": 1,
+                "function": "PAUSE"
             }
         },
         "13": {
@@ -343,7 +352,7 @@
                 "function": "CAM_AUTOSWITCH",
                 "parameters": {
                     "delay": 3000,
-                    "inputs": [1, 2]
+                    "inputs": [1, 2, 3]
                 }
             }
         }

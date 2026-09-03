@@ -33,9 +33,9 @@ class Button{
 
     }
 
-    setLedBlink(value) {
+    setLedBlink(origin, value) {
 
-        this.ledBlink = value;
+        if (this.ledFeedBack === origin){this.ledBlink = value};
     
     }
 

@@ -121,9 +121,9 @@ class VmixClient extends EventEmitter {
         if(!this.connected)
             return;
         switch(command.type) {
-            case "SET_VOLUME":
-                this.setVolume(command.input, command.value);
-                break;
+            //case "SET_VOLUME":
+            //    this.setVolume(command.input, command.value);
+            //    break;
             case "MUTE_CHANNEL":
                 this.muteChannel(command.input);
                 break;
@@ -161,6 +161,15 @@ class VmixClient extends EventEmitter {
                 this.audioBus(command.input, "F");
             case "AUDIO_BUS_G":
                 this.audioBus(command.input, "G");
+                break;
+            case "PLAY":
+                this.send(`FUNCTION Play Input=${command.input}`);
+                break;
+            case "PAUSE":
+                this.send(`FUNCTION Pause Input=${command.input}`);
+                break;
+            case "RESTART":
+                this.send(`FUNCTION Restart Input=${command.input}`);
                 break;
             case "CUT":
                 this.send(`FUNCTION Cut Input=${command.input}&Value=${command.value}`);
@@ -201,6 +210,9 @@ class VmixClient extends EventEmitter {
             case "F":
             case "G":
                 this.send(`FUNCTION SetBus${input}Volume Value=${value}`);
+                break;
+            case "Headphones": // Set headphones volume
+                this.send(`FUNCTION SetHeadphonesVolume Value=${value}`);
                 break;
             default: // Set input volume
                 this.send(`FUNCTION SetVolume Input=${input}&Value=${value}`);

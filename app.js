@@ -264,18 +264,32 @@ vmix.on("status", status => {
         midi.controls.forEach(control => {
         // Gestione dello stato "muted" degli ingressi  
             if ((control instanceof Button) && !(control.vmixChannel === undefined)) { 
-                try {
+                //try {
                     const input = inputs.find( input => input.number === String(control.vmixChannel) );
                     if (input && control.buttonActions.vmix.includes("MUTE")) { 
                         const muted = input.muted === "True"; 
                         control.setState("vmix", muted);
                     }
-                } catch {
-                }
+                //} catch {
+                //}
         // Gestione dello stato "solo" degli ingressi        
                 if (input && control.buttonActions.vmix.includes("SOLO")) { 
                     const solo = input.solo === "True"; 
                     control.setState("vmix", solo);
+                }
+        
+        // Gestione dello stato "Running" "Paused" e "Completed" degli ingressi        
+                if (input && control.buttonActions.vmix.includes("PLAY" || "PAUSE" || "RESTART")) { 
+                    const running = input.state;
+                    if (running === "Running") {
+                        control.setState("vmix", true)
+                        control.setLedBlink("vmix", false)
+                    } else if (running === "Paused") {
+                        control.setLedBlink("vmix", true)
+                    } else if (running === "Completed") {
+                        control.setState("vmix", false)
+                        control.setLedBlink("vmix", false)
+                    }
                 }
         // Gestione subgruppi ingressi 
                 if (input && control.buttonActions.vmix.includes("BUS")) {
@@ -375,12 +389,12 @@ bose.on("data", data => {
 
             // Gestione PSTN in caso di chiamta fa lampeggiare il led corrispondente
             if (control instanceof Button && control.boseModule === "PSTN In 1" && bose.callStatus === "INCOMING") {
-                control.setLedBlink(true);
+                control.setLedBlink("bose", true);
             } else if (control instanceof Button && control.boseModule === "PSTN In 1" && bose.callStatus === "IN CALL") {
-                control.setLedBlink(false);
+                control.setLedBlink("bose", false);
                 control.setState("bose", true);
             } else if (control instanceof Button && control.boseModule === "PSTN In 1" && bose.callStatus === "HANGUP") {
-                control.setLedBlink(false);
+                control.setLedBlink("bose", false);
                 control.setState("bose", false);
             }
         });
