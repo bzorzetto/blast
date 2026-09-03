@@ -9,7 +9,7 @@ const Button = require('./controls/Button');
 const AudioConverter = require('./utils/AudioConverter');
 const Blast = require('./utils/blast');
 const MediaoutCommand = require('./mediaout/MediaoutActions');
-
+const DicaffeineClient = require('./dicaffeine/dicaffeine');
 
 
 
@@ -108,6 +108,7 @@ const vmix = new VmixClient(config.hosts.vmix.host, config.hosts.vmix.apiPort, c
 const bose = new BoseClient(config.hosts.bose.host, config.hosts.bose.port);
 const mediaout = new MediaoutClient(config.hosts.mediaout.host, config.hosts.mediaout.portTx, config.hosts.mediaout.portRx);
 const blast = new Blast();
+const dicaffeine = new DicaffeineClient("192.168.127.139");
 
 vmix.connect();
 bose.connect();
@@ -166,6 +167,9 @@ Object.keys(config.buttons).forEach(buttonId => {
     midi.addControl(button);
 });
 
+dicaffeine.on("status", status => {
+    if (debug > 2) {console.log("Dicaffeine ===> :", status)}
+});
 
 // ----------------------------//
 // Evento Control Change MIDI  //
@@ -425,6 +429,7 @@ blast.on("switch_now", input => {
 // Send Alive message every 2Sec to mediaout to keep connetion active
 setInterval(() => {
     mediaout.send(MediaoutCommand.ALIVE);
+    dicaffeine.updateStatus();
 }, 2000);
 
 // vMix status request
