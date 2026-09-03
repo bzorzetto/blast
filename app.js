@@ -215,6 +215,7 @@ midi.on("noteon", msg => {
                    bose.doCommand({module: control.boseModule, type: control.getButtonActions()[action], input: control.boseChannel});
                } else if (action === "blast" && control.blastType) {
                    blast.doCommand({function: control.getButtonActions()[action], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
+                   control.setState("blast", !control.getState("blast"));
                }
                
            });
@@ -397,9 +398,9 @@ blast.on("switch_now", input => {
             if (control instanceof Button && control.vmixChannel === input && control.vmixType === "transition") {
                 vmix.doCommand({type: control.getButtonActions().vmix, input: control.vmixChannel, value: control.vmixValue});
             }
-            if (control.midiNote === 25 && control.getButtonActions().blast === "CAM_AUTOSWITCH") {
-                control.setState("blast", true);
-            }
+            //if (control.midiNote === 25 && control.getButtonActions().blast === "CAM_AUTOSWITCH") {
+            //    control.setState("blast", true);
+            //}
         });
 });
 
