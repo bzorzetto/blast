@@ -3,22 +3,23 @@ const EventEmitter = require('events');
 
 class DicaffeineClient extends EventEmitter {
 
-    constructor(host) {
+    constructor(host, port) {
 
         super();
 
         this.host = host;
+        this.port = port;
         
         this.connected = false;
         this.debug = false;
 
     }
 
-    async playerStart() {
+    async sendCommand(command) {
 
             return new Promise((resolve, reject) => {
 
-            http.get(`http://${this.host}/api/simple/player_start`, res => {
+            http.get(`http://${this.host}/api/simple/${command}`, res => {
 
                 let json = "";
 
@@ -38,11 +39,21 @@ class DicaffeineClient extends EventEmitter {
         });
     }
     
-    async updateStatus() {
+    async updateStatus(command) {
+
+        let cmd;
         try {
-            const status = await this.playerStart();
+            switch (command) {
+                case "PLAY":
+                    cmd = "player_start";
+                    break;
+                case "STOP":
+                    cmd = "player_stop";
+                    break;
+            }
+       
+        const status = await this.sendCommand(cmd);
         
-            this.emit("status", status);
 
         } catch (error) {
     

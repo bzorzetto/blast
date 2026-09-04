@@ -108,7 +108,9 @@ const vmix = new VmixClient(config.hosts.vmix.host, config.hosts.vmix.apiPort, c
 const bose = new BoseClient(config.hosts.bose.host, config.hosts.bose.port);
 const mediaout = new MediaoutClient(config.hosts.mediaout.host, config.hosts.mediaout.portTx, config.hosts.mediaout.portRx);
 const blast = new Blast();
-const dicaffeine = new DicaffeineClient("192.168.127.139");
+const dicaffeine = [];
+
+
 
 vmix.connect();
 bose.connect();
@@ -143,7 +145,8 @@ Object.keys(config.buttons).forEach(buttonId => {
     const buttonActions = {
         vmix: buttonConfig.vmix?.function,
         bose: buttonConfig.bose?.function,
-        blast: buttonConfig.blast?.function
+        blast: buttonConfig.blast?.function,
+        dicaffeine: buttonConfig.dicaffeine?.function
     };
 
     if (buttonConfig.mediaout?.function) {
@@ -167,8 +170,20 @@ Object.keys(config.buttons).forEach(buttonId => {
     midi.addControl(button);
 });
 
-dicaffeine.on("status", status => {
-    if (debug > 2) {console.log("Dicaffeine ===> :", status)}
+// Dicaffeine Objects
+Object.keys(config.hosts.dicaffeine).forEach(entry => {
+
+    const dicaffeineConfig = config.hosts.dicaffeine[entry];
+    const dicaff = new DicaffeineClient(dicaffeineConfig.host, dicaffeineConfig.port);
+    
+    dicaff.on("status", status => {
+
+        if (debug > 2) {console.log(`Dicaffeine [${entry}] ===>`, status);}
+
+    });
+
+    dicaffeine.push(dicaff);  
+
 });
 
 // ----------------------------//
@@ -210,18 +225,21 @@ midi.on("noteon", msg => {
 
            control.setValue(msg.value); // azione inutile al momento
 
-           Object.keys(control.getButtonActions()).forEach(action => {
-               if (action === "mediaout") {
-                   mediaout.send(control.getButtonActions()[action]);
-               } else if (action === "vmix" && control.vmixChannel) {
-                   vmix.doCommand({type: control.getButtonActions()[action], input: control.vmixChannel, value: control.vmixValue});
-               } else if (action === "bose" && control.boseChannel) {
-                   bose.doCommand({module: control.boseModule, type: control.getButtonActions()[action], input: control.boseChannel});
-               } else if (action === "blast" && control.blastType) {
-                   blast.doCommand({function: control.getButtonActions()[action], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
+           Object.keys(control.getButtonActions()).forEach(device => {
+               if (device === "mediaout") {
+                   mediaout.send(control.getButtonActions()[device]);
+               } else if (device === "vmix" && control.vmixChannel) {
+                   vmix.doCommand({type: control.getButtonActions()[device], input: control.vmixChannel, value: control.vmixValue});
+               } else if (device === "bose" && control.boseChannel) {
+                   bose.doCommand({module: control.boseModule, type: control.getButtonActions()[device], input: control.boseChannel});
+               } else if (device === "blast" && control.blastType) {
+                   blast.doCommand({function: control.getButtonActions()[device], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
                    control.setState("blast", !control.getState("blast"));
-               }
-               
+               } else if (device === "dicaffeine" && control.getButtonActions()[device]) {
+                   dicaffeine.forEach(dicaff => {
+                       dicaff.updateStatus(control.getButtonActions()[device]);      
+                   });            
+               }     
            });
        }
     });
@@ -429,7 +447,6 @@ blast.on("switch_now", input => {
 // Send Alive message every 2Sec to mediaout to keep connetion active
 setInterval(() => {
     mediaout.send(MediaoutCommand.ALIVE);
-    dicaffeine.updateStatus();
 }, 2000);
 
 // vMix status request

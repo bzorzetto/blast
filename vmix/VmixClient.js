@@ -177,6 +177,9 @@ class VmixClient extends EventEmitter {
             case "WIPE":
                 this.send(`FUNCTION Wipe Input=${command.input}&Value=${command.value}`);
                 break;
+            case "SET_OUTPUT2":
+                this.send(`FUNCTION SetOutput2 Input=${command.input}&Mix=1&Value=${command.value}`);
+                break;
             default:
                 console.log("Vmix Client: Unknown command type: " + command.type);
             }
