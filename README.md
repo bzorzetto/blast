@@ -49,92 +49,181 @@ Definizione hosts e porte
     "midi": {
         "input": "MIDI Mix",
         "output": "MIDI Mix"
-    }
+    },
+    "dicaffeine": {
+            "1": {
+                "host": "192.168.127.106",
+                "port": 80
+            },   
+            "2": {
+                "host": "192.168.127.107",
+                "port": 80
+            },   
+            "3": {
+                "host": "192.168.127.108",
+                "port": 80
+            }   
+        }
 
 Definizione sliders e loro funzioni:
 
     "sliders":{
         "1": {
-            "name": "Slider_1",
-            "midiCC": 19,
+            "name": "Master",
+            "midiCC": 62,
             "vmix": {
+                "type": "audio",
                 "input": "M",
-                "function": "Volume"
+                "function": "VOLUME"
             },
             "bose": {
+                "module": "Input ",
                 "channel": 1,
-                "function": "Gain"
+                "function": "LEVEL"   
             }
-        }
-    }
             
 Definizione pulsanti e relative funzioni
 
+-------------------------MUTE--------------------------
     "buttons":{
         "1": {
             "name": "Button_1",
             "midiNote": 1,
-            "ledFeedBack": "vmix"
-            "vmix": {
-                "input": "M",
-                "function": "TOGGLE_MUTE_CHANNEL"
-            },
-            "mediaout": {
-                "function": "CUE"
-            }
-        },
-        "2": {
-            "name": "Button_2",
-            "midiNote": 4,
-            "vmix": {
-                "input": "A",
-                "function": "TOGGLE_MUTE_CHANNEL"
-            },
+            "ledFeedBack": "bose",
             "bose": {
-                "channel": 2,
-                "function": "MUTE_CHANNEL"
+                "module": "Input ",
+                "channel": 1,
+                "function": "TOGGLE_MUTE_CHANNEL"
+            },
+            "vmix": {
+                "type": "audio",
+                "input": 1,
+                "function": "TOGGLE_MUTE_CHANNEL"
             }
         }
-    }
 
-Funzioni Sliders:
+----------------------TRANSITION-----------------------    
+     "9": {
+            "name": "Button_9",
+            "midiNote": 3,
+            "ledFeedBack": "vmix",
+            "vmix": {
+                "type": "transition",
+                "input": 1,
+                "function": "WIPE",
+                "value": "1000"
+            }
 
+-------------------------PSTN-------------------------
+     "13": {
+            "name": "PSTN",
+            "midiNote": 26,
+            "ledFeedBack": "bose",
+            "bose": {
+                "module": "PSTN In 1",
+                "channel": 1,
+                "function": "ANSWER_END_CALL"
+            }
+        }
+
+--------------------CAM AUTOSWITCH---------------------
+        "14": {
+            "name": "Autoswitch",
+            "midiNote": 25,
+            "ledFeedBack": "blast",
+            "blast": {
+                "type": "command",
+                "function": "CAM_AUTOSWITCH",
+                "parameters": {
+                    "delay": 3000,
+                    "inputs": [1, 2, 3]
+                }
+            }
+        }
+
+------------------------OUTPUT------------------------
+        "15": {
+            "name": "Button_15",
+            "midiNote": 15,
+            "ledFeedBack": "vmix",
+            "vmix": {
+                "type": "video",
+                "input": 12,
+                "function": "SET_OUTPUT2",
+                "value": "1"
+            }
+        }
+
+
+----------------------DICAFFEINE------------------------
+         "17": {
+            "name": "Button_17",
+            "midiNote": 21,
+            "ledFeedBack": "blast",
+            "dicaffeine": {
+                "type": "video",
+                "function": "PLAY"
+            }
+        }
+
+
+Sliders functions:
 : Volume - vMix        // (Unused now, maybe in the future)
 : Gain - Bose          // (Unused now, maybe in the future) 
 
-Funzioni Pulsanti vMix:
 
-Mute:
+vMix button functions:
+
+Audio:
 : MUTE_CHANNEL         // Mute specific channel 
 : UNMUTE_CHANNEL       // Unmute specific channel
 : TOGGLE_MUTE_CHANNEL  // Toggle mute of specific channel
+: PALY                 // Play track
+: PAUSE                // Pause track
+: RESTART              // Restart track
+: SOLO                 // Solo specific audio channel (TOGGLE)
 
-Bus:
+Audio Bus:
 : BUSX_SEND_TO_MASTER  // Send bus A|B|C|D|E|F|G to master output (TOGGLE)
 : AUDIO_BUS_A/B/C..etc // Send single audio input to a specific bus (TOGGLE)
 
-Solo:
-: SOLO                 // Solo specific audio channel (TOGGLE)
+Transitions:
+: WIPE                 // vMix transition
+: CUT                  // vMix transition
 
+Output:
+: SET_OUTPUT2          // vMix output 2 routing
 
-Funzioni pulsanti per i moduli Bose:
+Bose command definitions
 
-"Input X":             // Analog input were X = 1 | 2 | 3 etc
+MODULE = "Input X":             // Analog input were X = 1 | 2 | 3 etc
 : MUTE_CHANNEL         // Mute specific channel 
 : UNMUTE_CHANNEL       // Unmute specific channel
 : TOGGLE_MUTE_CHANNEL  // Toggle mute of specific channel
 : SUBSCRIBE_MUTE       // Subscribe to module to get unsolicited update data change
 : SUBSCRIBE_GAIN       // Subscribe to module to get unsolicited update data change
 
-"GainCHX":             // Gain module were X = 1 | 2 | 3 etc
+MODULE = "GainCHX":             // Gain module were X = 1 | 2 | 3 etc
 : MUTE_CHANNEL         // Mute specific channel 
 : UNMUTE_CHANNEL       // Unmute specific channel
 : TOGGLE_MUTE_CHANNEL  // Toggle mute of specific channel
 : SUBSCRIBE_MUTE       // Subscribe to module to get unsolicited update data change
 : SUBSCRIBE_GAIN       // Subscribe to module to get unsolicited update data change
 
-"PSTN In 1":
+MODULE = "PSTN In 1":
 : ANSWER_END_CALL       // Toggle call state
 : END_CALL              // End active call
 : ANSWER_CALL           // Answer incoming call
 : SUBSCRIBE_CALL_STATUS // Subscribe to module to get unsolicited update data change 
+
+Mainlevel:
+: PLAY                  // Play event
+: STOP                  // Stop event
+: CUE                   // Cue next event
+
+Dicaffeine:
+PLAY:                   // Start Player
+STOP:                   // Stop Player
+
+Blast:
+: CAM_AUTOSWITCH        // Start autoswitch between specified inputs

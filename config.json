@@ -396,6 +396,15 @@
                 "type": "video",
                 "function": "PLAY"
             }
+        },
+         "18": {
+            "name": "Button_18",
+            "midiNote": 24,
+            "ledFeedBack": "ha",
+            "ha": {
+                "type": "light",
+                "function": "OFF"
+            }
         }
     }
 }

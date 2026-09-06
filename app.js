@@ -10,8 +10,9 @@ const AudioConverter = require('./utils/AudioConverter');
 const Blast = require('./utils/blast');
 const MediaoutCommand = require('./mediaout/MediaoutActions');
 const DicaffeineClient = require('./dicaffeine/dicaffeine');
+const HomeAssistantClient = require('./ha/ha2');
 
-
+const haApiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJiMGFmMTVkYWY1ZGU0YTdhYTU1YzRhNTE4ZWUzNTkyMSIsImlhdCI6MTc4ODcxMjgxNywiZXhwIjoyMTA0MDcyODE3fQ.SF1SJDz6OuBEKtnbYpsrNjjBoQ7YXbRnsIlhuQ1tOxQ"
 
 // ----------------------------//
 // Start Midi Engine           //
@@ -21,7 +22,22 @@ const configFile = './config.json';
 const midi = new MidiManager();
 const midiInputDevices = midi.getInputs();
 const midiOutputDevices = midi.getOutputs();
+const ha = new HomeAssistantClient('192.168.20.4', 8123, haApiToken, {protocol: 'http', debug: true});
 
+async function test() {
+    const states = await ha.getStates();
+
+    states.forEach(entity => {
+
+        console.log(
+            entity.entity_id,
+            entity.state
+        );
+
+    });
+}
+
+test();
 
 // ----------------------------//
 // 1. Controllo configurazione //
@@ -146,7 +162,8 @@ Object.keys(config.buttons).forEach(buttonId => {
         vmix: buttonConfig.vmix?.function,
         bose: buttonConfig.bose?.function,
         blast: buttonConfig.blast?.function,
-        dicaffeine: buttonConfig.dicaffeine?.function
+        dicaffeine: buttonConfig.dicaffeine?.function,
+        ha: buttonConfig.ha?.function
     };
 
     if (buttonConfig.mediaout?.function) {
@@ -239,7 +256,9 @@ midi.on("noteon", msg => {
                    dicaffeine.forEach(dicaff => {
                        dicaff.updateStatus(control.getButtonActions()[device]);      
                    });            
-               }     
+               } else if (device === "ha" && control.haType) {
+                   
+               }    
            });
        }
     });
@@ -361,15 +380,15 @@ bose.on("connected", msg => {
     // Do subscriptions to Bose cahannels Gainx module to get feedback from
     midi.controls.forEach(control => {
         if (control instanceof Slider && control.boseModule && control.boseChannel) {
-            //bose.subscribeGainGain(control.boseChannel);
+     
             bose.doCommand({module: control.boseModule, type: "SUBSCRIBE_GAIN", input: control.boseChannel});
         }
         if (control instanceof Button && control.boseModule && control.boseChannel) {
-            //bose.subscribeGainMute(control.boseChannel);
+           
             bose.doCommand({module: control.boseModule, type: "SUBSCRIBE_MUTE", input: control.boseChannel});
         }
     });
-    //bose.subscribePSTN(); // by default we subscribe to PSTN input just to be informed of incoming call
+    
     bose.doCommand({module: "PSTN In 1", type: "SUBSCRIBE_CALL_STATUS"}); // by default we subscribe to PSTN input just to be informed of incoming call
 });   
 
