@@ -403,8 +403,8 @@
             "ledFeedBack": "ha",
             "ha": {
                 "type": "switch",
-                "entity": "relay_23",
-                "function": "turn_off"
+                "entity": "switch.cancello_pedonale",
+                "function": "turn_on"
             }
         }
     }

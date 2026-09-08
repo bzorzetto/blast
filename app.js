@@ -12,8 +12,8 @@ const MediaoutCommand = require('./mediaout/MediaoutActions');
 const DicaffeineClient = require('./dicaffeine/dicaffeine');
 const HomeAssistantClient = require('./ha/ha2');
 
-//const haApiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJiMGFmMTVkYWY1ZGU0YTdhYTU1YzRhNTE4ZWUzNTkyMSIsImlhdCI6MTc4ODcxMjgxNywiZXhwIjoyMTA0MDcyODE3fQ.SF1SJDz6OuBEKtnbYpsrNjjBoQ7YXbRnsIlhuQ1tOxQ"
-const haApiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI1YmY1YzdiNmI3MWU0NmRhODdkOThlODU4YzBmYjhmMiIsImlhdCI6MTc4ODg3MzA2NSwiZXhwIjoyMTA0MjMzMDY1fQ.IhlTc4CWe8yYsAJ7AeraAMmXTkGf8sn22-UsmTihfyA" 
+const haApiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJiMGFmMTVkYWY1ZGU0YTdhYTU1YzRhNTE4ZWUzNTkyMSIsImlhdCI6MTc4ODcxMjgxNywiZXhwIjoyMTA0MDcyODE3fQ.SF1SJDz6OuBEKtnbYpsrNjjBoQ7YXbRnsIlhuQ1tOxQ"
+//const haApiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI1YmY1YzdiNmI3MWU0NmRhODdkOThlODU4YzBmYjhmMiIsImlhdCI6MTc4ODg3MzA2NSwiZXhwIjoyMTA0MjMzMDY1fQ.IhlTc4CWe8yYsAJ7AeraAMmXTkGf8sn22-UsmTihfyA" 
 
 // ----------------------------//
 // Start Midi Engine           //
@@ -23,7 +23,7 @@ const configFile = './config.json';
 const midi = new MidiManager();
 const midiInputDevices = midi.getInputs();
 const midiOutputDevices = midi.getOutputs();
-const ha = new HomeAssistantClient('192.168.128.8', 8124, haApiToken, {protocol: 'http', debug: true});
+const ha = new HomeAssistantClient('192.168.20.4', 8123, haApiToken, {protocol: 'http', debug: true});
 
 //async function test() {
 //    const states = await ha.getStates();
@@ -49,6 +49,7 @@ async function test(setup) {
             }
         );
 }
+
 //test();
 
 // ----------------------------//
