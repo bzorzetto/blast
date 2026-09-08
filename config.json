@@ -402,8 +402,9 @@
             "midiNote": 24,
             "ledFeedBack": "ha",
             "ha": {
-                "type": "light",
-                "function": "OFF"
+                "type": "switch",
+                "entity": "relay_23",
+                "function": "turn_off"
             }
         }
     }

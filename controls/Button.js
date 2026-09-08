@@ -13,6 +13,8 @@ class Button{
         this.ledFeedBack = config.ledFeedBack; 
         this.blastType = config.blastType;
         this.blastParameters = config.blastParameters;
+        this.haType = config.haType;
+        this.haEntity = config.haEntity;
         this.ledBlink = false;
         this.value = 0;
         this.state = false;
