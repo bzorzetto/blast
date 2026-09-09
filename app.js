@@ -6,14 +6,16 @@ const BoseClient = require('./bose/BoseClient');
 const MediaoutClient = require('./mediaout/MediaoutClient');
 const Slider = require('./controls/Slider');
 const Button = require('./controls/Button');
+const ButtonCC = require('./controls/ButtonCC');
 const AudioConverter = require('./utils/AudioConverter');
 const Blast = require('./utils/blast');
 const MediaoutCommand = require('./mediaout/MediaoutActions');
 const DicaffeineClient = require('./dicaffeine/dicaffeine');
 const HomeAssistantClient = require('./ha/ha2');
 
-const haApiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJiMGFmMTVkYWY1ZGU0YTdhYTU1YzRhNTE4ZWUzNTkyMSIsImlhdCI6MTc4ODcxMjgxNywiZXhwIjoyMTA0MDcyODE3fQ.SF1SJDz6OuBEKtnbYpsrNjjBoQ7YXbRnsIlhuQ1tOxQ"
-//const haApiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI1YmY1YzdiNmI3MWU0NmRhODdkOThlODU4YzBmYjhmMiIsImlhdCI6MTc4ODg3MzA2NSwiZXhwIjoyMTA0MjMzMDY1fQ.IhlTc4CWe8yYsAJ7AeraAMmXTkGf8sn22-UsmTihfyA" 
+
+//const haApiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJiMGFmMTVkYWY1ZGU0YTdhYTU1YzRhNTE4ZWUzNTkyMSIsImlhdCI6MTc4ODcxMjgxNywiZXhwIjoyMTA0MDcyODE3fQ.SF1SJDz6OuBEKtnbYpsrNjjBoQ7YXbRnsIlhuQ1tOxQ"
+const haApiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI1YmY1YzdiNmI3MWU0NmRhODdkOThlODU4YzBmYjhmMiIsImlhdCI6MTc4ODg3MzA2NSwiZXhwIjoyMTA0MjMzMDY1fQ.IhlTc4CWe8yYsAJ7AeraAMmXTkGf8sn22-UsmTihfyA" 
 
 // ----------------------------//
 // Start Midi Engine           //
@@ -23,7 +25,7 @@ const configFile = './config.json';
 const midi = new MidiManager();
 const midiInputDevices = midi.getInputs();
 const midiOutputDevices = midi.getOutputs();
-const ha = new HomeAssistantClient('192.168.20.4', 8123, haApiToken, {protocol: 'http', debug: true});
+const ha = new HomeAssistantClient('192.168.128.8', 8124, haApiToken, {protocol: 'http', debug: true});
 
 //async function test() {
 //    const states = await ha.getStates();
@@ -165,10 +167,10 @@ Object.keys(config.sliders).forEach(sliderId => {
     midi.addControl(slider);
 });
 
-// Aggiungo i pulsanti definiti nel file di configurazione
-Object.keys(config.buttons).forEach(buttonId => {
+// Aggiungo i pulsanti pilotati da note nidi definiti nel file di configurazione
+Object.keys(config.buttonsMidiNote).forEach(buttonId => {
 
-    const buttonConfig = config.buttons[buttonId];
+    const buttonConfig = config.buttonsMidiNote[buttonId];
     
     // Prepara le azioni del pulsante
     const buttonActions = {
@@ -187,6 +189,43 @@ Object.keys(config.buttons).forEach(buttonId => {
     const button = new Button({
 
         midiNote: buttonConfig.midiNote,
+        vmixType: buttonConfig.vmix?.type,
+        vmixChannel: buttonConfig.vmix?.input,
+        vmixValue: buttonConfig.vmix?.value,
+        boseChannel: buttonConfig.bose?.channel,
+        boseModule: buttonConfig.bose?.module,
+        blastType: buttonConfig.blast?.type,
+        blastParameters: buttonConfig.blast?.parameters,
+        haType: buttonConfig.ha?.type,
+        haEntity: buttonConfig.ha?.entity,
+        ledFeedBack: buttonConfig.ledFeedBack,
+        buttonActions
+    });
+    midi.addControl(button);
+});
+
+// Aggiungo i pulsanti pilotati da Control Change midi definiti nel file di configurazione
+Object.keys(config.buttonsMidiCC).forEach(buttonId => {
+
+    const buttonConfig = config.buttonsMidiCC[buttonId];
+    
+    // Prepara le azioni del pulsante
+    const buttonActions = {
+        vmix: buttonConfig.vmix?.function,
+        bose: buttonConfig.bose?.function,
+        blast: buttonConfig.blast?.function,
+        dicaffeine: buttonConfig.dicaffeine?.function,
+        ha: buttonConfig.ha?.function
+    };
+
+    if (buttonConfig.mediaout?.function) {
+        buttonActions.mediaout =
+        MediaoutCommand.fromString(buttonConfig.mediaout.function);
+    }
+
+    const button = new ButtonCC({
+
+        midiCC: buttonConfig.midiCC,
         vmixType: buttonConfig.vmix?.type,
         vmixChannel: buttonConfig.vmix?.input,
         vmixValue: buttonConfig.vmix?.value,
@@ -240,6 +279,32 @@ midi.on("cc", msg => {
                 vmix.setVolume(control.vmixChannel, vmixValue);
             }
         }
+
+// Gestione ButtonsCC
+        if (control instanceof ButtonCC && msg.controller === control.midiCC) {
+console.log("buttonCC match");
+           control.setValue(msg.value); // azione inutile al momento
+
+           Object.keys(control.getButtonActions()).forEach(device => {
+               if (device === "mediaout") {
+                   mediaout.send(control.getButtonActions()[device]);
+               } else if (device === "vmix" && control.vmixChannel) {
+                   vmix.doCommand({type: control.getButtonActions()[device], input: control.vmixChannel, value: control.vmixValue});
+               } else if (device === "bose" && control.boseChannel) {
+                   bose.doCommand({module: control.boseModule, type: control.getButtonActions()[device], input: control.boseChannel});
+               } else if (device === "blast" && control.blastType) {
+                   blast.doCommand({function: control.getButtonActions()[device], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
+                   control.setState("blast", !control.getState("blast"));
+               } else if (device === "dicaffeine" && control.getButtonActions()[device]) {
+                   dicaffeine.forEach(dicaff => {
+                       dicaff.updateStatus(control.getButtonActions()[device]);      
+                   });            
+               } else if (device === "ha" && control.getButtonActions()[device]) {
+                   console.log(control.haType, control.haEntity, control.getButtonActions()[device]);
+                   test({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
+               }    
+           });
+       }
     });
 });
 

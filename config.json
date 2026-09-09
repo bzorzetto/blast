@@ -220,7 +220,7 @@
             }
         }
     },
-    "buttons":{
+    "buttonsMidiNote":{
         "1": {
             "name": "Button_1",
             "midiNote": 1,
@@ -405,6 +405,18 @@
                 "type": "switch",
                 "entity": "switch.cancello_pedonale",
                 "function": "turn_on"
+            }
+        }
+    },
+    "buttonsMidiCC":{
+        "1": {
+            "name": "Button_1",
+            "midiCC": 18,
+            "ledFeedBack": "bose",
+            "bose": {
+                "module": "Input ",
+                "channel": 1,
+                "function": "TOGGLE_MUTE_CHANNEL"
             }
         }
     }
