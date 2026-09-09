@@ -363,7 +363,7 @@ midi.on('noteoff', msg => {
 
 mediaout.on("message", msg => {
 
-    if (debug > 2) {console.log("Messaggio UDP :", msg)};
+    if (debug > 4) {console.log("Messaggio UDP :", msg)};
     
 });
 
@@ -577,6 +577,24 @@ setInterval(() => {
                     midi.send(config.midi.output, [0x90, control.midiNote, 0]); 
                 } else {
                     midi.send(config.midi.output, [0x90, control.midiNote, 127]);
+                }
+            }
+        }
+
+        if (control instanceof ButtonCC) {
+            muted = control.getState();
+            // Stato "muted"
+            if (!muted) {
+                midi.send(config.midi.output, [0xB0, control.midiCC, 0]);
+            } else if (muted) {
+                midi.send(config.midi.output, [0xB0, control.midiCC, 127]);
+            }
+            // Lampeggio led
+            if (control.ledBlink) {
+                if (on > 1) {
+                    midi.send(config.midi.output, [0xB0, control.midiCC, 0]); 
+                } else {
+                    midi.send(config.midi.output, [0xB0, control.midiCC, 127]);
                 }
             }
         }     

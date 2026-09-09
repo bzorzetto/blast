@@ -224,31 +224,25 @@
         "1": {
             "name": "Button_1",
             "midiNote": 1,
-            "ledFeedBack": "bose",
-            "bose": {
-                "module": "Input ",
-                "channel": 1,
-                "function": "TOGGLE_MUTE_CHANNEL"
+            "ledFeedBack": "blast",
+            "mediaout": {
+                "function": "CUE"
             }
         },
         "2": {
             "name": "Button_2",
             "midiNote": 4,
-            "ledFeedBack": "bose",
-            "bose": {
-                "module": "Input ",
-                "channel": 2,
-                "function": "TOGGLE_MUTE_CHANNEL"
+            "ledFeedBack": "blast",
+            "mediaout": {
+                "function": "PLAY"
             }
         },
         "3": {
             "name": "Button_3",
             "midiNote": 7,
-            "ledFeedBack": "bose",
-            "bose": {
-                "module": "Input ",
-                "channel": 3,
-                "function": "TOGGLE_MUTE_CHANNEL"
+            "ledFeedBack": "blast",
+            "mediaout": {
+                "function": "STOP"
             }
         },
         "4": {
@@ -411,12 +405,26 @@
     "buttonsMidiCC":{
         "1": {
             "name": "Button_1",
-            "midiCC": 18,
-            "ledFeedBack": "bose",
-            "bose": {
-                "module": "Input ",
-                "channel": 1,
-                "function": "TOGGLE_MUTE_CHANNEL"
+            "midiCC": 22,
+            "ledFeedBack": "blast",
+            "mediaout": {
+                "function": "CUE"
+            }
+        },
+        "2": {
+            "name": "Button_2",
+            "midiCC": 26,
+            "ledFeedBack": "blast",
+            "mediaout": {
+                "function": "PLAY"
+            }
+        },
+        "3": {
+            "name": "Button_3",
+            "midiCC": 30,
+            "ledFeedBack": "blast",
+            "mediaout": {
+                "function": "STOP"
             }
         }
     }
