@@ -281,7 +281,7 @@ midi.on("cc", msg => {
         }
 
 // Gestione ButtonsCC
-        if (control instanceof ButtonCC && msg.controller === control.midiCC) {
+        if (control instanceof ButtonCC && msg.controller === control.midiCC && msg.value > 0) {
 
            control.setValue(msg.value); // azione inutile al momento
 
@@ -319,7 +319,7 @@ midi.on("noteon", msg => {
 
     midi.controls.forEach(control => {
        if (((control instanceof Button) || (control instanceof ButtonCC)) && msg.note === control.midiNote) {
-
+        
            control.setValue(msg.value); // azione inutile al momento
 
            Object.keys(control.getButtonActions()).forEach(device => {

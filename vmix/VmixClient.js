@@ -180,6 +180,12 @@ class VmixClient extends EventEmitter {
             case "SET_OUTPUT2":
                 this.send(`FUNCTION SetOutput2 Input=${command.input}&Mix=1&Value=${command.value}`);
                 break;
+            case "SET_OUTPUT3":
+                this.send(`FUNCTION SetOutput3 Input=${command.input}&Mix=1&Value=${command.value}`);
+                break;
+            case "SET_OUTPUT4":
+                this.send(`FUNCTION SetOutput4 Input=${command.input}&Mix=1&Value=${command.value}`);
+                break;
             default:
                 console.log("Vmix Client: Unknown command type: " + command.type);
             }
