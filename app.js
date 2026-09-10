@@ -282,7 +282,7 @@ midi.on("cc", msg => {
 
 // Gestione ButtonsCC
         if (control instanceof ButtonCC && msg.controller === control.midiCC) {
-console.log("buttonCC match");
+
            control.setValue(msg.value); // azione inutile al momento
 
            Object.keys(control.getButtonActions()).forEach(device => {
@@ -315,10 +315,10 @@ midi.on("noteon", msg => {
 
     if (debug) {console.log(msg)};
 
-// Gestione Buttons
+// Gestione Buttons Midi Note
 
     midi.controls.forEach(control => {
-       if (control instanceof Button && msg.note === control.midiNote) {
+       if (((control instanceof Button) || (control instanceof ButtonCC)) && msg.note === control.midiNote) {
 
            control.setValue(msg.value); // azione inutile al momento
 
@@ -385,7 +385,7 @@ vmix.on("status", status => {
     try {
         midi.controls.forEach(control => {
         // Gestione dello stato "muted" degli ingressi  
-            if ((control instanceof Button) && !(control.vmixChannel === undefined)) { 
+            if (((control instanceof Button) || (control instanceof ButtonCC)) && !(control.vmixChannel === undefined)) { 
                 //try {
                     const input = inputs.find( input => input.number === String(control.vmixChannel) );
                     if (input && control.buttonActions.vmix.includes("MUTE")) { 
@@ -464,7 +464,7 @@ bose.on("connected", msg => {
      
             bose.doCommand({module: control.boseModule, type: "SUBSCRIBE_GAIN", input: control.boseChannel});
         }
-        if (control instanceof Button && control.boseModule && control.boseChannel) {
+        if (((control instanceof Button) || (control instanceof ButtonCC)) && control.boseModule && control.boseChannel) {
            
             bose.doCommand({module: control.boseModule, type: "SUBSCRIBE_MUTE", input: control.boseChannel});
         }
@@ -496,26 +496,26 @@ bose.on("data", data => {
 
         midi.controls.forEach(control => {
             // Gestione sato "muted" dei moduli Bose GainCHx   
-            if (control instanceof Button && msg === `GA"${control.boseModule}${control.boseChannel}">2=F`) {
+            if (((control instanceof Button) || (control instanceof ButtonCC)) && msg === `GA"${control.boseModule}${control.boseChannel}">2=F`) {
                 control.setState("bose", false);
-            } else if (control instanceof Button && msg === `GA"${control.boseModule}${control.boseChannel}">2=O`) {
+            } else if (((control instanceof Button) || (control instanceof ButtonCC)) && msg === `GA"${control.boseModule}${control.boseChannel}">2=O`) {
                 control.setState("bose", true);
             }
             
             // Gestione sato "muted" dei moduli Bose Inputx
-            if (control instanceof Button && msg === `GA"${control.boseModule}${control.boseChannel}">4=F`) {
+            if (((control instanceof Button) || (control instanceof ButtonCC)) && msg === `GA"${control.boseModule}${control.boseChannel}">4=F`) {
                 control.setState("bose", false);
-            } else if (control instanceof Button && msg === `GA"${control.boseModule}${control.boseChannel}">4=O`) {
+            } else if (((control instanceof Button) || (control instanceof ButtonCC)) && msg === `GA"${control.boseModule}${control.boseChannel}">4=O`) {
                 control.setState("bose", true);
             }
 
             // Gestione PSTN in caso di chiamta fa lampeggiare il led corrispondente
-            if (control instanceof Button && control.boseModule === "PSTN In 1" && bose.callStatus === "INCOMING") {
+            if (((control instanceof Button) || (control instanceof ButtonCC)) && control.boseModule === "PSTN In 1" && bose.callStatus === "INCOMING") {
                 control.setLedBlink("bose", true);
-            } else if (control instanceof Button && control.boseModule === "PSTN In 1" && bose.callStatus === "IN CALL") {
+            } else if (((control instanceof Button) || (control instanceof ButtonCC)) && control.boseModule === "PSTN In 1" && bose.callStatus === "IN CALL") {
                 control.setLedBlink("bose", false);
                 control.setState("bose", true);
-            } else if (control instanceof Button && control.boseModule === "PSTN In 1" && bose.callStatus === "HANGUP") {
+            } else if (((control instanceof Button) || (control instanceof ButtonCC)) && control.boseModule === "PSTN In 1" && bose.callStatus === "HANGUP") {
                 control.setLedBlink("bose", false);
                 control.setState("bose", false);
             }
@@ -531,7 +531,7 @@ blast.on("switch_now", input => {
 
     midi.controls.forEach(control => {
             // Gestione sato "cam_autoswitch" attivo
-            if (control instanceof Button && control.vmixChannel === input && control.vmixType === "transition") {
+            if (((control instanceof Button) || (control instanceof ButtonCC)) && control.vmixChannel === input && control.vmixType === "transition") {
                 vmix.doCommand({type: control.getButtonActions().vmix, input: control.vmixChannel, value: control.vmixValue});
             }
             //if (control.midiNote === 25 && control.getButtonActions().blast === "CAM_AUTOSWITCH") {
