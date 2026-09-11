@@ -396,16 +396,6 @@
                 "type": "video",
                 "function": "PLAY"
             }
-        },
-         "18": {
-            "name": "Button_18",
-            "midiNote": 24,
-            "ledFeedBack": "ha",
-            "ha": {
-                "type": "switch",
-                "entity": "switch.cancello_pedonale",
-                "function": "turn_on"
-            }
         }
     },
     "buttonsMidiCC":{
