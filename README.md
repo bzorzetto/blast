@@ -28,7 +28,7 @@ BAST comunica tramite API con vMix e tramite il protocollo TCP -> Seriale con Bo
 Configurazione:
 Il file config.json è strutturato in due parti fondamentali:
 
-Definizione hosts e porte
+Definizione hosts e porte:
 
 "hosts": {
         "vmix": {
