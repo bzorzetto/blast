@@ -180,8 +180,8 @@ Definizione pulsanti e relative funzioni:
 
 
 Sliders functions:
-  : Volume - vMix        // (Unused now, maybe in the future)
-  : Gain - Bose          // (Unused now, maybe in the future) 
+  : Volume - vMix										// (Unused now, maybe in the future)
+  : Gain - Bose												// (Unused now, maybe in the future) 
 
 vMix button functions:
   Audio:
