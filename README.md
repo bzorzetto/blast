@@ -30,40 +30,42 @@ Il file config.json è strutturato in due parti fondamentali:
 
 Definizione hosts e porte:
 
-"hosts": {
-        "vmix": {
-            "host": "127.0.0.1",
-            "apiPort": 8099,
-            "webPort": 8088
+    "hosts": {
+            "vmix": {
+                "host": "127.0.0.1",
+                "apiPort": 8099,
+                "webPort": 8088
+            },
+            "bose": {
+                "host": "192.168.127.6",
+                "port": 10055
+            },
+            "mediaout": {
+                "host": "127.0.0.1",
+                "portTx": 5400,
+                "portRx": 6400
+            }
         },
-        "bose": {
-            "host": "192.168.127.6",
-            "port": 10055
+        "midi": {
+            "input": "MIDI Mix",
+            "output": "MIDI Mix"
         },
-        "mediaout": {
-            "host": "127.0.0.1",
-            "portTx": 5400,
-            "portRx": 6400
-        }
-    },
-    "midi": {
-        "input": "MIDI Mix",
-        "output": "MIDI Mix"
-    },
-    "dicaffeine": {
-            "1": {
-                "host": "192.168.127.106",
-                "port": 80
-            },   
-            "2": {
-                "host": "192.168.127.107",
-                "port": 80
-            },   
-            "3": {
-                "host": "192.168.127.108",
-                "port": 80
-            }   
-        }
+        "dicaffeine": {
+                "1": {
+                    "host": "192.168.127.106",
+                    "port": 80
+                },   
+                "2": {
+                    "host": "192.168.127.107",
+                    "port": 80
+                },   
+                "3": {
+                    "host": "192.168.127.108",
+                    "port": 80
+                }   
+            }
+    
+
 
 Definizione sliders e loro funzioni:
 
@@ -81,10 +83,13 @@ Definizione sliders e loro funzioni:
                 "channel": 1,
                 "function": "LEVEL"   
             }
+        }
+    }
             
-Definizione pulsanti e relative funzioni
+Definizione pulsanti e relative funzioni:
 
 -------------------------MUTE--------------------------
+
     "buttons":{
         "1": {
             "name": "Button_1",
@@ -101,9 +106,11 @@ Definizione pulsanti e relative funzioni
                 "function": "TOGGLE_MUTE_CHANNEL"
             }
         }
+    }
 
-----------------------TRANSITION-----------------------    
-     "9": {
+----------------------TRANSITION-----------------------
+
+        "2": {
             "name": "Button_9",
             "midiNote": 3,
             "ledFeedBack": "vmix",
@@ -113,9 +120,11 @@ Definizione pulsanti e relative funzioni
                 "function": "WIPE",
                 "value": "1000"
             }
+        }
 
 -------------------------PSTN-------------------------
-     "13": {
+
+        "3": {
             "name": "PSTN",
             "midiNote": 26,
             "ledFeedBack": "bose",
@@ -127,7 +136,8 @@ Definizione pulsanti e relative funzioni
         }
 
 --------------------CAM AUTOSWITCH---------------------
-        "14": {
+
+        "4": {
             "name": "Autoswitch",
             "midiNote": 25,
             "ledFeedBack": "blast",
@@ -142,7 +152,8 @@ Definizione pulsanti e relative funzioni
         }
 
 ------------------------OUTPUT------------------------
-        "15": {
+
+        "5": {
             "name": "Button_15",
             "midiNote": 15,
             "ledFeedBack": "vmix",
@@ -156,7 +167,8 @@ Definizione pulsanti e relative funzioni
 
 
 ----------------------DICAFFEINE------------------------
-         "17": {
+
+         "6": {
             "name": "Button_17",
             "midiNote": 21,
             "ledFeedBack": "blast",

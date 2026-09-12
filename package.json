@@ -26,6 +26,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "fast-xml-parser": "^5.11.1",
     "jzz": "^1.9.6"
   }
 }

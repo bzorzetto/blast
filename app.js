@@ -106,12 +106,12 @@ midi.openOutput(output.name);
 // Connect to remote hosts     //
 // ----------------------------//
 
-const vmix = new VmixClient(config.hosts.vmix.host, config.hosts.vmix.apiPort, config.hosts.vmix.webPort);
-const bose = new BoseClient(config.hosts.bose.host, config.hosts.bose.port);
-const mediaout = new MediaoutClient(config.hosts.mediaout.host, config.hosts.mediaout.portTx, config.hosts.mediaout.portRx);
+const vmix = new VmixClient(config.hosts.vmix?.host || "127.0.0.1", config.hosts.vmix?.apiPort || 8099, config.hosts.vmix?.webPort || 8088);
+const bose = new BoseClient(config.hosts.bose?.host || "127.0.0.1", config.hosts.bose?.port || 10055);
+const mediaout = new MediaoutClient(config.hosts.mediaout?.host || "127.0.0.1", config.hosts?.mediaout.portTx || 5400, config.hosts.mediaout?.portRx || 6400);
 const blast = new Blast();
 const dicaffeine = [];
-const ha = new HomeAssistantClient(config.hosts.ha.host, config.hosts.ha.port, config.hosts.ha.haApiToken, {protocol: 'http', debug: true});
+const ha = new HomeAssistantClient(config.hosts.ha?.host || "127.0.0.1", config.hosts.ha?.port || 80, config.hosts.ha?.haApiTokenBR || "", {protocol: 'http', debug: true});
 
 
 
@@ -119,7 +119,7 @@ vmix.connect();
 bose.connect();
 mediaout.connect();
 
-// Set debug level 
+//Set debug level 
 bose.setDebug(debug);
 vmix.setDebug(debug);
 
@@ -181,7 +181,7 @@ Object.keys(config.buttonsMidiCC).forEach(buttonId => {
 
     const buttonConfig = config.buttonsMidiCC[buttonId];
     
-    // Prepara le azioni del pulsante
+    // Preparo le azioni del pulsante
     const buttonActions = {
         vmix: buttonConfig.vmix?.function,
         bose: buttonConfig.bose?.function,
@@ -273,7 +273,7 @@ midi.on("cc", msg => {
                    });            
                } else if (device === "ha" && control.getButtonActions()[device]) {
                    console.log(control.haType, control.haEntity, control.getButtonActions()[device]);
-                   test({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
+                   haCallService({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
                }    
            });
        }
@@ -516,19 +516,24 @@ blast.on("switch_now", input => {
 // HA Functions                //
 // ----------------------------//
 
-//async function test() {
-//    const states = await ha.getStates();
+async function haGetStates() {
+    const states = await ha.getStates();
 
-//    states.forEach(entity => {
+    states.forEach(entity => {
 
-//        console.log(
-//            entity.entity_id,
-//            entity.state
-//        );
+        console.log(
+            entity.entity_id,
+            entity.state
+        );
 
-//    });
-//}
-async function test(setup) {
+    });
+}
+
+async function haGetState(entityId) {
+    await ha.getState(entityId);
+}
+
+async function haCallService(setup) {
 
     console.log("setup = : ", typeof(setup), setup.domain, setup.function, setup.entity);
     
