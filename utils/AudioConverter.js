@@ -1,4 +1,4 @@
-class AudioConverter {
+export default class AudioConverter {
 
     static midiToBose(value){
         const boseMinGain = -60;
@@ -31,4 +31,4 @@ class AudioConverter {
 
 }
 
-module.exports = AudioConverter;
+//module.exports = AudioConverter;

@@ -1,4 +1,4 @@
-class MediaoutCommand {
+export default class MediaoutCommand {
 
     static CUE = '800A00818181813881E6E83032ED040000';
 
@@ -25,4 +25,4 @@ class MediaoutCommand {
         }
     }
 }
-module.exports=MediaoutCommand;
+//module.exports=MediaoutCommand;

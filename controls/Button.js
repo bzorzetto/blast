@@ -1,4 +1,4 @@
-class Button{
+export default class Button{
 
     constructor(config){
 
@@ -67,4 +67,4 @@ class Button{
     
 }
 
-module.exports = Button;
+//module.exports = Button;

@@ -1,4 +1,4 @@
-class Slider{
+export default class Slider{
 
     constructor(config){
 
@@ -6,6 +6,8 @@ class Slider{
         this.vmixChannel=config.vmixChannel;
         this.boseChannel=config.boseChannel;
         this.boseModule=config.boseModule;
+        this.haType=config.haType;
+        this.haEntity=config.haEntity;
         this.value = 0;
     }
 
@@ -21,4 +23,4 @@ class Slider{
     }
 }
 
-module.exports=Slider;
+//module.exports=Slider;

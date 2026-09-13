@@ -1,12 +1,21 @@
-const net = require('net');
-const http = require('http');
-const EventEmitter = require('events');
-const { XMLParser } = require('fast-xml-parser');
+//const net = require('net');
+import net from 'net';
+
+//const http = require('http');
+import http from 'http';
+
+//const EventEmitter = require('events');
+import {EventEmitter} from 'events';
+
+//const { XMLParser } = require('fast-xml-parser');
+import {XMLParser} from 'fast-xml-parser';
+
 const xmlParser = new XMLParser({
     ignoreAttributes: false,
     attributeNamePrefix: ""
 });
-class VmixClient extends EventEmitter {
+//class VmixClient extends EventEmitter {
+export default class VmixClient extends EventEmitter {
 
     constructor(host, apiPort, webPort) {
 
@@ -84,7 +93,7 @@ class VmixClient extends EventEmitter {
 
             this.connected = true;
 
-            console.log("vMix connesso");
+            if (this.debug > 3) {console.log("vMix connesso");}
 
             this.emit("connected");
 
@@ -100,7 +109,7 @@ class VmixClient extends EventEmitter {
 
             this.connected = false;
 
-            console.log("vMix disconnesso");
+            if (this.debug > 3) {console.log("vMix disconnesso");}
 
             this.emit("disconnected");
 
@@ -110,7 +119,7 @@ class VmixClient extends EventEmitter {
 
         this.socket.on('error', err => {
 
-            console.log(err.message);
+            if (this.debug > 3) {console.log(err.message);}
 
         });
 
@@ -298,4 +307,4 @@ class VmixClient extends EventEmitter {
     }
 }
 
-module.exports=VmixClient;
+//module.exports=VmixClient;

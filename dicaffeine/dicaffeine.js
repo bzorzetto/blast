@@ -1,7 +1,11 @@
-const http = require('http');
-const EventEmitter = require('events');
+//const http = require('http');
+import http from 'http';
 
-class DicaffeineClient extends EventEmitter {
+//const EventEmitter = require('events');
+import {EventEmitter} from 'events';
+
+//class DicaffeineClient extends EventEmitter {
+export default class DicaffeineClient extends EventEmitter {
 
     constructor(host, port) {
 
@@ -61,4 +65,4 @@ class DicaffeineClient extends EventEmitter {
     }
 }
 
-module.exports = DicaffeineClient;
+//module.exports = DicaffeineClient;

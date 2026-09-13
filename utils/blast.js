@@ -1,6 +1,8 @@
-const EventEmitter = require('events');
+//const EventEmitter = require('events');
+import {EventEmitter} from 'events';
 
-class Blast extends EventEmitter {
+//class Blast extends EventEmitter {
+export default class Blast extends EventEmitter {
 
     constructor() {
 
@@ -45,4 +47,4 @@ class Blast extends EventEmitter {
     
 }
 
-module.exports = Blast;
+//module.exports = Blast;

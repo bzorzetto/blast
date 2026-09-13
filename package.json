@@ -19,7 +19,7 @@
   },
   "license": "ISC",
   "author": "Bruno Zorzetto",
-  "type": "commonjs",
+  "type": "module",
   "main": "app.js",
   "scripts": {
     "start": "node --force-node-api-uncaught-exceptions-policy=true app.js",
@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "fast-xml-parser": "^5.11.1",
-    "jzz": "^1.9.6"
+    "jzz": "^1.9.6",
+    "ws": "^8.21.3"
   }
 }

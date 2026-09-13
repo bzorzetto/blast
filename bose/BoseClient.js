@@ -1,7 +1,11 @@
-const net = require('net');
-const EventEmitter = require('events');
+//const net = require('net');
+import net from 'net';
 
-class BoseClient extends EventEmitter {
+//const EventEmitter = require('events');
+import {EventEmitter} from 'events';
+
+//class BoseClient extends EventEmitter {
+export default class BoseClient extends EventEmitter {
 
     constructor(host, port) {
 
@@ -26,7 +30,7 @@ class BoseClient extends EventEmitter {
 
             this.connected = true;
 
-            console.log("BOSE connesso");
+            if (this.debug > 3) {console.log("BOSE connesso");}
 
             this.emit("connected");
 
@@ -42,7 +46,7 @@ class BoseClient extends EventEmitter {
 
             this.connected = false;
 
-            console.log("BOSE disconnesso");
+            if (this.debug > 3) {console.log("BOSE disconnesso");}
 
             this.emit("disconnected");
 
@@ -52,7 +56,7 @@ class BoseClient extends EventEmitter {
 
         this.socket.on('error', err => {
 
-            console.log(err.message);
+            if (this.debug > 3) {console.log(err.message);}
 
         });
 
@@ -191,4 +195,4 @@ class BoseClient extends EventEmitter {
     }
 }
 
-module.exports=BoseClient;
+//module.exports=BoseClient;

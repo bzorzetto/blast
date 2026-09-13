@@ -1,7 +1,11 @@
-const dgram = require('dgram');
-const EventEmitter = require('events');
+//const dgram = require('dgram');
+import dgram from 'dgram';
 
-class MediaoutClient extends EventEmitter {
+//const EventEmitter = require('events');
+import EventEmitter from 'events';
+
+//class MediaoutClient extends EventEmitter {
+export default class MediaoutClient extends EventEmitter{
 
     constructor(host, localPort, remotePort) {
 
@@ -71,4 +75,4 @@ class MediaoutClient extends EventEmitter {
     }
     
 }
-module.exports=MediaoutClient;
+//module.exports=MediaoutClient;

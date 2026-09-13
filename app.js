@@ -1,18 +1,17 @@
-const debug = 4;  // false = disable, true or 1, 2, 3 set log verbosity   
-const fs = require('fs');
-const MidiManager = require('./midi/MidiManager');
-const VmixClient = require('./vmix/VmixClient');
-const BoseClient = require('./bose/BoseClient');
-const MediaoutClient = require('./mediaout/MediaoutClient');
-const Slider = require('./controls/Slider');
-const Button = require('./controls/Button');
-const ButtonCC = require('./controls/ButtonCC');
-const AudioConverter = require('./utils/AudioConverter');
-const Blast = require('./utils/blast');
-const MediaoutCommand = require('./mediaout/MediaoutActions');
-const DicaffeineClient = require('./dicaffeine/dicaffeine');
-const HomeAssistantClient = require('./ha/ha2');
-
+const debug = 2;  // false = disable, true or 1, 2, 3 set log verbosity   
+import fs from 'fs';
+import MidiManager from './midi/MidiManager.js';
+import VmixClient from './vmix/VmixClient.js';
+import BoseClient from './bose/BoseClient.js';
+import MediaoutClient from './mediaout/MediaoutClient.js';
+import Slider from './controls/Slider.js';
+import Button from './controls/Button.js';
+import ButtonCC from './controls/ButtonCC.js';
+import AudioConverter from './utils/AudioConverter.js';
+import Blast from './utils/blast.js';
+import MediaoutCommand from './mediaout/MediaoutActions.js';
+import DicaffeineClient from './dicaffeine/dicaffeine.js';
+import HomeAssistantClient from './ha/ha3.js';
 
 // ----------------------------//
 // Start Midi Engine           //
@@ -111,13 +110,22 @@ const bose = new BoseClient(config.hosts.bose?.host || "127.0.0.1", config.hosts
 const mediaout = new MediaoutClient(config.hosts.mediaout?.host || "127.0.0.1", config.hosts?.mediaout.portTx || 5400, config.hosts.mediaout?.portRx || 6400);
 const blast = new Blast();
 const dicaffeine = [];
-const ha = new HomeAssistantClient(config.hosts.ha?.host || "127.0.0.1", config.hosts.ha?.port || 80, config.hosts.ha?.haApiTokenBR || "", {protocol: 'http', debug: true});
-
+//const ha = new HomeAssistantClient(config.hosts.ha?.host || "127.0.0.1", config.hosts.ha?.port || 8123, config.hosts.ha?.haApiTokenBR || "", {protocol: 'http', debug: true});
+const ha = new HomeAssistantClient({
+    url:  `http://${config.hosts.ha.host}:${config.hosts.ha.port}`,
+    token: `${config.hosts.ha?.haApiTokenBR}`
+})
 
 
 vmix.connect();
 bose.connect();
 mediaout.connect();
+
+async function haConnect(){
+    await ha.connect();
+}
+
+haConnect();
 
 //Set debug level 
 bose.setDebug(debug);
@@ -134,7 +142,9 @@ Object.keys(config.sliders).forEach(sliderId => {
         midiCC: sliderConfig.midiCC,    
     vmixChannel: sliderConfig.vmix?.input,
     boseChannel: sliderConfig.bose?.channel,
-    boseModule: sliderConfig.bose?.module
+    boseModule: sliderConfig.bose?.module,
+    haType: sliderConfig.ha?.type,
+    haEntity: sliderConfig.ha?.entity,
     });
     midi.addControl(slider);
 });
@@ -150,7 +160,7 @@ Object.keys(config.buttonsMidiNote).forEach(buttonId => {
         bose: buttonConfig.bose?.function,
         blast: buttonConfig.blast?.function,
         dicaffeine: buttonConfig.dicaffeine?.function,
-        ha: buttonConfig.ha?.function
+        ha: buttonConfig.ha?.function,
     };
 
     if (buttonConfig.mediaout?.function) {
@@ -250,6 +260,9 @@ midi.on("cc", msg => {
             if (control.vmixChannel) {
                 vmix.setVolume(control.vmixChannel, vmixValue);
             }
+            if (control.haType) {
+                haCallService({domain: `${control.haType}`, function: 'turn_on', entity: `${control.haEntity}`, brightness: `${(control.value * 2)}`});
+            }
         }
 
 // Gestione ButtonsCC
@@ -310,7 +323,7 @@ midi.on("noteon", msg => {
                    });            
                } else if (device === "ha" && control.getButtonActions()[device]) {
                    console.log(control.haType, control.haEntity, control.getButtonActions()[device]);
-                   test({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
+                   haCallService({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
                }    
            });
        }
@@ -512,6 +525,49 @@ blast.on("switch_now", input => {
         });
 });
 
+
+// ----------------------------//
+// Eventi Home Assistant       //
+// ----------------------------//
+
+ha.on('connected', () => {
+
+    console.log('BLAST: Home Assistant connesso');
+
+});
+
+
+ha.on('disconnected', () => {
+
+    console.log('BLAST: Home Assistant disconnesso');
+
+});
+
+
+ha.on('error', error => {
+
+    console.error(
+        'BLAST: errore Home Assistant:',
+        error
+    );
+
+});
+
+ha.onStateChanged(
+    'light.cucina',
+    (newState, oldState, event) => {
+
+        console.log(
+            'Cucina:',
+            oldState?.state,
+            '->',
+            newState?.state
+        );
+
+    }
+);
+
+
 // ----------------------------//
 // HA Functions                //
 // ----------------------------//
@@ -535,13 +591,14 @@ async function haGetState(entityId) {
 
 async function haCallService(setup) {
 
-    console.log("setup = : ", typeof(setup), setup.domain, setup.function, setup.entity);
+    console.log("setup = : ", typeof(setup), setup.domain, setup.function, setup.entity, setup.brightness);
     
     await ha.callService(
             `${setup.domain}`,
             `${setup.function}`,
             {
-                entity_id: `${setup.entity}`
+                entity_id: `${setup.entity}`,
+                brightness: `${setup.brightness}`
             }
         );
 }

@@ -1,7 +1,8 @@
-const EventEmitter = require('events');
-const JZZ = require('jzz');
+import {EventEmitter} from 'events';
+import JZZ from 'jzz';
 
-class MidiManager extends EventEmitter {
+//class MidiManager extends EventEmitter {
+export default class MidiManager extends EventEmitter {
 
     constructor() {
 
@@ -147,4 +148,4 @@ class MidiManager extends EventEmitter {
 }
 
 
-module.exports=MidiManager;
+//module.exports=MidiManager;

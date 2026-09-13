@@ -180,8 +180,8 @@ Definizione pulsanti e relative funzioni:
 
 
 Sliders functions:
-  : Volume - vMix										// (Unused now, maybe in the future)
-  : Gain - Bose												// (Unused now, maybe in the future) 
+  : VOLUME - vMix		   // (Unused now, maybe in the future)
+  : LEVEL - Bose  		   // (Unused now, maybe in the future) 
 
 vMix button functions:
   Audio:
@@ -202,34 +202,32 @@ vMix button functions:
     : SET_OUTPUT2          // vMix output 2 routing
 
 Bose command definitions:
-  MODULE = "Input X":    // Analog input were X = 1 | 2 | 3 etc
+  MODULE = "Input X":      // Analog input were X = 1 | 2 | 3 etc
     : MUTE_CHANNEL         // Mute specific channel 
     : UNMUTE_CHANNEL       // Unmute specific channel
     : TOGGLE_MUTE_CHANNEL  // Toggle mute of specific channel
     : SUBSCRIBE_MUTE       // Subscribe to module to get unsolicited update data change
     : SUBSCRIBE_GAIN       // Subscribe to module to get unsolicited update data change
-  MODULE = "GainCHX":             // Gain module were X = 1 | 2 | 3 etc
+  MODULE = "GainCHX":      // Gain module were X = 1 | 2 | 3 etc
     : MUTE_CHANNEL         // Mute specific channel 
     : UNMUTE_CHANNEL       // Unmute specific channel
     : TOGGLE_MUTE_CHANNEL  // Toggle mute of specific channel
     : SUBSCRIBE_MUTE       // Subscribe to module to get unsolicited update data change
     : SUBSCRIBE_GAIN       // Subscribe to module to get unsolicited update data change
   MODULE = "PSTN In 1":
-    : ANSWER_END_CALL       // Toggle call state
-    : END_CALL              // End active call
-    : ANSWER_CALL           // Answer incoming call
-    : SUBSCRIBE_CALL_STATUS // Subscribe to module to get unsolicited update data change 
+    : ANSWER_END_CALL      // Toggle call state
+    : END_CALL             // End active call
+    : ANSWER_CALL          // Answer incoming call
+    : SUBSCRIBE_CALL_STATUS// Subscribe to module to get unsolicited update data change 
 
 Mainlevel:
-  : PLAY                  // Play event
-  : STOP                  // Stop event
-  : CUE                   // Cue next event
+    : PLAY                 // Play event
+    : STOP                 // Stop event
+    : CUE                  // Cue next event
 
 Dicaffeine:
-  :PLAY                   // Start Player
-  :STOP                   // Stop Player
-
+    : PLAY                 // Start Player
+    : STOP                 // Stop Player
 
 Blast:
-
-: CAM_AUTOSWITCH        // Start autoswitch between specified inputs
+    : CAM_AUTOSWITCH       // Start autoswitch between specified inputs
