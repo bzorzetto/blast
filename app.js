@@ -261,7 +261,7 @@ midi.on("cc", msg => {
                 vmix.setVolume(control.vmixChannel, vmixValue);
             }
             if (control.haType) {
-                haCallService({domain: `${control.haType}`, function: 'turn_on', entity: `${control.haEntity}`, brightness: `${(control.value * 2)}`});
+                ha.callService(control.haType, 'turn_on', {entity_id: `${control.haEntity}`, brightness: `${(control.value * 2)}`})
             }
         }
 
@@ -285,8 +285,7 @@ midi.on("cc", msg => {
                        dicaff.updateStatus(control.getButtonActions()[device]);      
                    });            
                } else if (device === "ha" && control.getButtonActions()[device]) {
-                   console.log(control.haType, control.haEntity, control.getButtonActions()[device]);
-                   haCallService({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
+                   ha.callService(control.haType, control.getButtonActions()[device], {entity_id: `${control.haEntity}`})
                }    
            });
        }
@@ -322,8 +321,7 @@ midi.on("noteon", msg => {
                        dicaff.updateStatus(control.getButtonActions()[device]);      
                    });            
                } else if (device === "ha" && control.getButtonActions()[device]) {
-                   console.log(control.haType, control.haEntity, control.getButtonActions()[device]);
-                   haCallService({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
+                   ha.callService(control.haType, control.getButtonActions()[device], {entity_id: `${control.haEntity}`})
                }    
            });
        }
@@ -519,9 +517,6 @@ blast.on("switch_now", input => {
             if (((control instanceof Button) || (control instanceof ButtonCC)) && control.vmixChannel === input && control.vmixType === "transition") {
                 vmix.doCommand({type: control.getButtonActions().vmix, input: control.vmixChannel, value: control.vmixValue});
             }
-            //if (control.midiNote === 25 && control.getButtonActions().blast === "CAM_AUTOSWITCH") {
-            //    control.setState("blast", true);
-            //}
         });
 });
 
@@ -532,14 +527,14 @@ blast.on("switch_now", input => {
 
 ha.on('connected', () => {
 
-    console.log('BLAST: Home Assistant connesso');
+    console.log('Home Assistant connesso');
 
 });
 
 
 ha.on('disconnected', () => {
 
-    console.log('BLAST: Home Assistant disconnesso');
+    console.log('Home Assistant disconnesso');
 
 });
 
@@ -547,62 +542,21 @@ ha.on('disconnected', () => {
 ha.on('error', error => {
 
     console.error(
-        'BLAST: errore Home Assistant:',
+        'errore Home Assistant:',
         error
     );
 
 });
 
-ha.onStateChanged(
-    'light.cucina',
-    (newState, oldState, event) => {
-
-        console.log(
-            'Cucina:',
-            oldState?.state,
-            '->',
-            newState?.state
-        );
-
-    }
-);
-
-
-// ----------------------------//
-// HA Functions                //
-// ----------------------------//
-
-async function haGetStates() {
-    const states = await ha.getStates();
-
-    states.forEach(entity => {
-
-        console.log(
-            entity.entity_id,
-            entity.state
-        );
-
-    });
-}
-
-async function haGetState(entityId) {
-    await ha.getState(entityId);
-}
-
-async function haCallService(setup) {
-
-    console.log("setup = : ", typeof(setup), setup.domain, setup.function, setup.entity, setup.brightness);
-    
-    await ha.callService(
-            `${setup.domain}`,
-            `${setup.function}`,
-            {
-                entity_id: `${setup.entity}`,
-                brightness: `${setup.brightness}`
+midi.controls.forEach(control => {
+            // Attiva le sottoscrizioni al cambio di stato delle entità configurate
+            if (control.haEntity){ 
+               ha.onStateChanged(control.haEntity, (newState, oldState, event) => {
+                    console.log('HA --->', oldState?.state, '->', newState?.state, event);
+                });          
             }
-        );
-}
-//-------------------------------------
+        });
+
 
 
 // ----------------------------//
