@@ -3,13 +3,13 @@ const EventEmitter = require('events');
 
 class DicaffeineClient extends EventEmitter {
 
-    constructor(host, port) {
+    constructor(host, port, id) {
 
         super();
 
         this.host = host;
         this.port = port;
-        
+        this.id = id;
         this.connected = false;
         this.debug = false;
 
@@ -50,6 +50,8 @@ class DicaffeineClient extends EventEmitter {
                 case "STOP":
                     cmd = "player_stop";
                     break;
+                default:
+                    cmd = "player_stream?name=" + encodeURIComponent(command);
             }
        
         const status = await this.sendCommand(cmd);

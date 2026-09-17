@@ -11,6 +11,7 @@ const AudioConverter = require('./utils/AudioConverter');
 const Blast = require('./utils/blast');
 const MediaoutCommand = require('./mediaout/MediaoutActions');
 const DicaffeineClient = require('./dicaffeine/dicaffeine');
+const KeyboardManager = require('./kbd/KeyboardManager');
 
 
 // ----------------------------//
@@ -109,6 +110,7 @@ const bose = new BoseClient(config.hosts.bose.host, config.hosts.bose.port);
 const mediaout = new MediaoutClient(config.hosts.mediaout.host, config.hosts.mediaout.portTx, config.hosts.mediaout.portRx);
 const blast = new Blast();
 const dicaffeine = [];
+const keyboard = new KeyboardManager();
 
 
 
@@ -167,6 +169,7 @@ Object.keys(config.buttonsMidiNote).forEach(buttonId => {
         blastParameters: buttonConfig.blast?.parameters,
         haType: buttonConfig.ha?.type,
         haEntity: buttonConfig.ha?.entity,
+        dicaffeineId: buttonConfig.dicaffeine?.id,
         ledFeedBack: buttonConfig.ledFeedBack,
         buttonActions
     });
@@ -204,6 +207,7 @@ Object.keys(config.buttonsMidiCC).forEach(buttonId => {
         blastParameters: buttonConfig.blast?.parameters,
         haType: buttonConfig.ha?.type,
         haEntity: buttonConfig.ha?.entity,
+        dicaffeineId: buttonConfig.dicaffeine?.id,
         ledFeedBack: buttonConfig.ledFeedBack,
         buttonActions
     });
@@ -212,9 +216,9 @@ Object.keys(config.buttonsMidiCC).forEach(buttonId => {
 
 // Dicaffeine Objects
 Object.keys(config.hosts.dicaffeine).forEach(entry => {
-
+    
     const dicaffeineConfig = config.hosts.dicaffeine[entry];
-    const dicaff = new DicaffeineClient(dicaffeineConfig.host, dicaffeineConfig.port);
+    const dicaff = new DicaffeineClient(dicaffeineConfig.host, dicaffeineConfig.port, entry);
     
     dicaff.on("status", status => {
 
@@ -225,6 +229,94 @@ Object.keys(config.hosts.dicaffeine).forEach(entry => {
     dicaffeine.push(dicaff);  
 
 });
+
+
+// Keyboard Objects
+Object.keys(config.keyboard).forEach(entry => {
+
+    const buttonConfig = config.keyboard[entry];
+
+// Prepara le azioni del pulsante
+    const buttonActions = {
+        vmix: buttonConfig.vmix?.function,
+        bose: buttonConfig.bose?.function,
+        blast: buttonConfig.blast?.function,
+        dicaffeine: buttonConfig.dicaffeine?.function,
+        ha: buttonConfig.ha?.function
+    };
+
+    if (buttonConfig.mediaout?.function) {
+        buttonActions.mediaout =
+        MediaoutCommand.fromString(buttonConfig.mediaout.function);
+    }
+
+    const button = new Button({
+
+        vmixType: buttonConfig.vmix?.type,
+        vmixChannel: buttonConfig.vmix?.input,
+        vmixValue: buttonConfig.vmix?.value,
+        boseChannel: buttonConfig.bose?.channel,
+        boseModule: buttonConfig.bose?.module,
+        blastType: buttonConfig.blast?.type,
+        blastParameters: buttonConfig.blast?.parameters,
+        haType: buttonConfig.ha?.type,
+        haEntity: buttonConfig.ha?.entity,
+        dicaffeineId: buttonConfig.dicaffeine?.id,
+        ledFeedBack: buttonConfig.ledFeedBack,
+        key: buttonConfig.key,
+        buttonActions
+    });
+    midi.addControl(button);
+
+    keyboard.on(buttonConfig.key, () => {
+        //console.log("premuto :", buttonConfig.key);
+        midi.controls.forEach( control => {
+          if (((control instanceof Button) || (control instanceof ButtonCC)) && buttonConfig.key === control.key) {
+        
+           //control.setValue(msg.value); // azione inutile al momento
+
+           Object.keys(control.getButtonActions()).forEach(device => {
+               if (device === "mediaout") {
+                   mediaout.send(control.getButtonActions()[device]);
+               } else if (device === "vmix" && control.vmixChannel) {
+                   vmix.doCommand({type: control.getButtonActions()[device], input: control.vmixChannel, value: control.vmixValue});
+               } else if (device === "bose" && control.boseChannel) {
+                   bose.doCommand({module: control.boseModule, type: control.getButtonActions()[device], input: control.boseChannel});
+               } else if (device === "blast" && control.blastType) {
+                   blast.doCommand({function: control.getButtonActions()[device], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
+                   control.setState("blast", !control.getState("blast"));
+               } else if (device === "dicaffeine" && control.getButtonActions()[device]) {
+                    if (!control.dicaffeineId){ //esegue lo stesso comando su tutti player se non viene definito un id specifico
+                        dicaffeine.forEach(dicaff => {
+                            dicaff.updateStatus(control.getButtonActions()[device]);      
+                        });
+                    } else { //altrimenti esegue il comando solamente sul player indicato
+                        const dicaff = dicaffeine.find( entry => entry.id === String(control.dicaffeineId));
+                        dicaff.updateStatus(control.getButtonActions()[device]);
+                    }           
+               } else if (device === "ha" && control.getButtonActions()[device]) {
+                   console.log(control.haType, control.haEntity, control.getButtonActions()[device]);
+                   test({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
+               }    
+           });
+       }  
+            //if (control.key) {
+            //    console.log("eseguo azione");
+            //    console.log(control);
+            //} 
+        });
+    });
+
+});
+
+// ----------------------------//
+// Evento Keyboard             //
+// ----------------------------//
+//keyboard.on("CTRL+F1", () => {
+    //console.log("CTRL+F1 premuto");
+//});
+
+keyboard.start();
 
 // ----------------------------//
 // Evento Control Change MIDI  //
@@ -265,9 +357,14 @@ midi.on("cc", msg => {
                    blast.doCommand({function: control.getButtonActions()[device], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
                    control.setState("blast", !control.getState("blast"));
                } else if (device === "dicaffeine" && control.getButtonActions()[device]) {
-                   dicaffeine.forEach(dicaff => {
-                       dicaff.updateStatus(control.getButtonActions()[device]);      
-                   });            
+                    if (!control.dicaffeineId){ //esegue lo stesso comando su tutti player se non viene definito un id specifico
+                        dicaffeine.forEach(dicaff => {
+                            dicaff.updateStatus(control.getButtonActions()[device]);      
+                        });
+                    } else { //altrimenti esegue il comando solamente sul player indicato
+                        const dicaff = dicaffeine.find( entry => entry.id === String(control.dicaffeineId));
+                        dicaff.updateStatus(control.getButtonActions()[device]);
+                    }           
                } else if (device === "ha" && control.getButtonActions()[device]) {
                    console.log(control.haType, control.haEntity, control.getButtonActions()[device]);
                    test({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
@@ -302,9 +399,14 @@ midi.on("noteon", msg => {
                    blast.doCommand({function: control.getButtonActions()[device], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
                    control.setState("blast", !control.getState("blast"));
                } else if (device === "dicaffeine" && control.getButtonActions()[device]) {
-                   dicaffeine.forEach(dicaff => {
-                       dicaff.updateStatus(control.getButtonActions()[device]);      
-                   });            
+                    if (!control.dicaffeineId){ //esegue lo stesso comando su tutti player se non viene definito un id specifico
+                        dicaffeine.forEach(dicaff => {
+                            dicaff.updateStatus(control.getButtonActions()[device]);      
+                        });
+                    } else { //altrimenti esegue il comando solamente sul player indicato
+                        const dicaff = dicaffeine.find( entry => entry.id === String(control.dicaffeineId));
+                        dicaff.updateStatus(control.getButtonActions()[device]);
+                    }           
                } else if (device === "ha" && control.getButtonActions()[device]) {
                    console.log(control.haType, control.haEntity, control.getButtonActions()[device]);
                    test({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
