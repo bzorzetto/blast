@@ -3,6 +3,7 @@ class Button{
     constructor(config){
 
         this.midiNote = config.midiNote || 0;
+        this.midiCC = config.midiCC || 0;
         this.vmixType = config.vmixType;
         this.vmixChannel = config.vmixChannel;
         this.vmixValue = config.vmixValue;

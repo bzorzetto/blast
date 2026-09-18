@@ -17,7 +17,6 @@ const KeyboardManager = require('./kbd/KeyboardManager');
 // ----------------------------//
 // Start Midi Engine           //
 // ----------------------------//
-
 const configFile = './config.json';
 const midi = new MidiManager();
 const midiInputDevices = midi.getInputs();
@@ -27,7 +26,6 @@ const midiOutputDevices = midi.getOutputs();
 // ----------------------------//
 // 1. Controllo configurazione //
 // ----------------------------//
-
 if (!fs.existsSync(configFile)) {
 
     console.log("Nessun file config.json trovato.");
@@ -49,7 +47,6 @@ if (!fs.existsSync(configFile)) {
 // ----------------------------//
 // 2. Carica configurazione    //
 // ----------------------------//
-
 const config = JSON.parse(
     fs.readFileSync(configFile, 'utf8')
 );
@@ -58,7 +55,6 @@ const config = JSON.parse(
 // ----------------------------//
 // 3. Verifica dispositivi     //
 // ----------------------------//
-
 const input = midi.findInput(
     config.midi.input
 );
@@ -85,7 +81,6 @@ if (!output) {
 // ----------------------------//
 // 4. Tutto OK                 //
 // ----------------------------//
-
 console.log("\nConfigurazione MIDI OK.");
 
 console.log(
@@ -104,7 +99,6 @@ midi.openOutput(output.name);
 // ----------------------------//
 // Connect to remote hosts     //
 // ----------------------------//
-
 const vmix = new VmixClient(config.hosts.vmix.host, config.hosts.vmix.apiPort, config.hosts.vmix.webPort);
 const bose = new BoseClient(config.hosts.bose.host, config.hosts.bose.port);
 const mediaout = new MediaoutClient(config.hosts.mediaout.host, config.hosts.mediaout.portTx, config.hosts.mediaout.portRx);
@@ -122,10 +116,10 @@ mediaout.connect();
 bose.setDebug(debug);
 vmix.setDebug(debug);
 
+
 // ----------------------------//
 // Add midi controls           //
 // ----------------------------//
-
 // Aggiungo gli slider definiti nel file di configurazione
 Object.keys(config.sliders).forEach(sliderId => {
     const sliderConfig = config.sliders[sliderId];
@@ -138,196 +132,69 @@ Object.keys(config.sliders).forEach(sliderId => {
     midi.addControl(slider);
 });
 
-// Aggiungo i pulsanti pilotati da note nidi definiti nel file di configurazione
+// Aggiungo i pulsanti pilotati da note midi definiti nel file di configurazione
 Object.keys(config.buttonsMidiNote).forEach(buttonId => {
-
     const buttonConfig = config.buttonsMidiNote[buttonId];
-    
-    // Prepara le azioni del pulsante
-    const buttonActions = {
-        vmix: buttonConfig.vmix?.function,
-        bose: buttonConfig.bose?.function,
-        blast: buttonConfig.blast?.function,
-        dicaffeine: buttonConfig.dicaffeine?.function,
-        ha: buttonConfig.ha?.function
-    };
-
-    if (buttonConfig.mediaout?.function) {
-        buttonActions.mediaout =
-        MediaoutCommand.fromString(buttonConfig.mediaout.function);
-    }
-
-    const button = new Button({
-
-        midiNote: buttonConfig.midiNote,
-        vmixType: buttonConfig.vmix?.type,
-        vmixChannel: buttonConfig.vmix?.input,
-        vmixValue: buttonConfig.vmix?.value,
-        boseChannel: buttonConfig.bose?.channel,
-        boseModule: buttonConfig.bose?.module,
-        blastType: buttonConfig.blast?.type,
-        blastParameters: buttonConfig.blast?.parameters,
-        haType: buttonConfig.ha?.type,
-        haEntity: buttonConfig.ha?.entity,
-        dicaffeineId: buttonConfig.dicaffeine?.id,
-        ledFeedBack: buttonConfig.ledFeedBack,
-        buttonActions
-    });
-    midi.addControl(button);
+    buildButton(buttonConfig, Button);
 });
 
 // Aggiungo i pulsanti pilotati da Control Change midi definiti nel file di configurazione
 Object.keys(config.buttonsMidiCC).forEach(buttonId => {
-
     const buttonConfig = config.buttonsMidiCC[buttonId];
-    
-    // Prepara le azioni del pulsante
-    const buttonActions = {
-        vmix: buttonConfig.vmix?.function,
-        bose: buttonConfig.bose?.function,
-        blast: buttonConfig.blast?.function,
-        dicaffeine: buttonConfig.dicaffeine?.function,
-        ha: buttonConfig.ha?.function
-    };
-
-    if (buttonConfig.mediaout?.function) {
-        buttonActions.mediaout =
-        MediaoutCommand.fromString(buttonConfig.mediaout.function);
-    }
-
-    const button = new ButtonCC({
-
-        midiCC: buttonConfig.midiCC,
-        vmixType: buttonConfig.vmix?.type,
-        vmixChannel: buttonConfig.vmix?.input,
-        vmixValue: buttonConfig.vmix?.value,
-        boseChannel: buttonConfig.bose?.channel,
-        boseModule: buttonConfig.bose?.module,
-        blastType: buttonConfig.blast?.type,
-        blastParameters: buttonConfig.blast?.parameters,
-        haType: buttonConfig.ha?.type,
-        haEntity: buttonConfig.ha?.entity,
-        dicaffeineId: buttonConfig.dicaffeine?.id,
-        ledFeedBack: buttonConfig.ledFeedBack,
-        buttonActions
-    });
-    midi.addControl(button);
+    buildButton(buttonConfig, ButtonCC);
 });
 
-// Dicaffeine Objects
+
+// ----------------------------//
+// Add Dicaffeine controls     //
+// ----------------------------//
 Object.keys(config.hosts.dicaffeine).forEach(entry => {
     
     const dicaffeineConfig = config.hosts.dicaffeine[entry];
     const dicaff = new DicaffeineClient(dicaffeineConfig.host, dicaffeineConfig.port, entry);
     
     dicaff.on("status", status => {
-
         if (debug > 2) {console.log(`Dicaffeine [${entry}] ===>`, status);}
-
     });
 
     dicaffeine.push(dicaff);  
-
 });
 
 
-// Keyboard Objects
+// ----------------------------//
+// Add Keyboard controls       //
+// ----------------------------//
 Object.keys(config.keyboard).forEach(entry => {
 
     const buttonConfig = config.keyboard[entry];
 
-// Prepara le azioni del pulsante
-    const buttonActions = {
-        vmix: buttonConfig.vmix?.function,
-        bose: buttonConfig.bose?.function,
-        blast: buttonConfig.blast?.function,
-        dicaffeine: buttonConfig.dicaffeine?.function,
-        ha: buttonConfig.ha?.function
-    };
-
-    if (buttonConfig.mediaout?.function) {
-        buttonActions.mediaout =
-        MediaoutCommand.fromString(buttonConfig.mediaout.function);
-    }
-
-    const button = new Button({
-
-        vmixType: buttonConfig.vmix?.type,
-        vmixChannel: buttonConfig.vmix?.input,
-        vmixValue: buttonConfig.vmix?.value,
-        boseChannel: buttonConfig.bose?.channel,
-        boseModule: buttonConfig.bose?.module,
-        blastType: buttonConfig.blast?.type,
-        blastParameters: buttonConfig.blast?.parameters,
-        haType: buttonConfig.ha?.type,
-        haEntity: buttonConfig.ha?.entity,
-        dicaffeineId: buttonConfig.dicaffeine?.id,
-        ledFeedBack: buttonConfig.ledFeedBack,
-        key: buttonConfig.key,
-        buttonActions
-    });
-    midi.addControl(button);
+    buildButton(buttonConfig, Button);
 
     keyboard.on(buttonConfig.key, () => {
-        //console.log("premuto :", buttonConfig.key);
-        midi.controls.forEach( control => {
-          if (((control instanceof Button) || (control instanceof ButtonCC)) && buttonConfig.key === control.key) {
         
-           //control.setValue(msg.value); // azione inutile al momento
-
-           Object.keys(control.getButtonActions()).forEach(device => {
-               if (device === "mediaout") {
-                   mediaout.send(control.getButtonActions()[device]);
-               } else if (device === "vmix" && control.vmixChannel) {
-                   vmix.doCommand({type: control.getButtonActions()[device], input: control.vmixChannel, value: control.vmixValue});
-               } else if (device === "bose" && control.boseChannel) {
-                   bose.doCommand({module: control.boseModule, type: control.getButtonActions()[device], input: control.boseChannel});
-               } else if (device === "blast" && control.blastType) {
-                   blast.doCommand({function: control.getButtonActions()[device], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
-                   control.setState("blast", !control.getState("blast"));
-               } else if (device === "dicaffeine" && control.getButtonActions()[device]) {
-                    if (!control.dicaffeineId){ //esegue lo stesso comando su tutti player se non viene definito un id specifico
-                        dicaffeine.forEach(dicaff => {
-                            dicaff.updateStatus(control.getButtonActions()[device]);      
-                        });
-                    } else { //altrimenti esegue il comando solamente sul player indicato
-                        const dicaff = dicaffeine.find( entry => entry.id === String(control.dicaffeineId));
-                        dicaff.updateStatus(control.getButtonActions()[device]);
-                    }           
-               } else if (device === "ha" && control.getButtonActions()[device]) {
-                   console.log(control.haType, control.haEntity, control.getButtonActions()[device]);
-                   test({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
-               }    
-           });
-       }  
-            //if (control.key) {
-            //    console.log("eseguo azione");
-            //    console.log(control);
-            //} 
+        midi.controls.forEach( control => {
+            if (((control instanceof Button) || (control instanceof ButtonCC)) && buttonConfig.key === control.key) {
+                operateButtons(control);
+            }  
         });
     });
-
 });
 
-// ----------------------------//
-// Evento Keyboard             //
-// ----------------------------//
-//keyboard.on("CTRL+F1", () => {
-    //console.log("CTRL+F1 premuto");
-//});
 
+// ----------------------------//
+// Start Kbd Engine           //
+// ----------------------------//
 keyboard.start();
+
 
 // ----------------------------//
 // Evento Control Change MIDI  //
 // ----------------------------//
-
 midi.on("cc", msg => {
 
     if (debug) {console.log(msg)};
 
 // Gestione sliders
-
     midi.controls.forEach(control => {
         if (control instanceof Slider && msg.controller === control.midiCC) {
             control.setValue(msg.value);
@@ -344,35 +211,14 @@ midi.on("cc", msg => {
 // Gestione ButtonsCC
         if (control instanceof ButtonCC && msg.controller === control.midiCC && msg.value > 0) {
 
-           control.setValue(msg.value); // azione inutile al momento
+           //control.setValue(msg.value); // azione inutile al momento
 
-           Object.keys(control.getButtonActions()).forEach(device => {
-               if (device === "mediaout") {
-                   mediaout.send(control.getButtonActions()[device]);
-               } else if (device === "vmix" && control.vmixChannel) {
-                   vmix.doCommand({type: control.getButtonActions()[device], input: control.vmixChannel, value: control.vmixValue});
-               } else if (device === "bose" && control.boseChannel) {
-                   bose.doCommand({module: control.boseModule, type: control.getButtonActions()[device], input: control.boseChannel});
-               } else if (device === "blast" && control.blastType) {
-                   blast.doCommand({function: control.getButtonActions()[device], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
-                   control.setState("blast", !control.getState("blast"));
-               } else if (device === "dicaffeine" && control.getButtonActions()[device]) {
-                    if (!control.dicaffeineId){ //esegue lo stesso comando su tutti player se non viene definito un id specifico
-                        dicaffeine.forEach(dicaff => {
-                            dicaff.updateStatus(control.getButtonActions()[device]);      
-                        });
-                    } else { //altrimenti esegue il comando solamente sul player indicato
-                        const dicaff = dicaffeine.find( entry => entry.id === String(control.dicaffeineId));
-                        dicaff.updateStatus(control.getButtonActions()[device]);
-                    }           
-               } else if (device === "ha" && control.getButtonActions()[device]) {
-                   console.log(control.haType, control.haEntity, control.getButtonActions()[device]);
-                   test({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
-               }    
-           });
+           operateButtons(control);
+
        }
     });
 });
+
 
 // ----------------------------//
 // Evento Nota ON MIDI         //
@@ -382,45 +228,22 @@ midi.on("noteon", msg => {
     if (debug) {console.log(msg)};
 
 // Gestione Buttons Midi Note
-
     midi.controls.forEach(control => {
        if (((control instanceof Button) || (control instanceof ButtonCC)) && msg.note === control.midiNote) {
         
-           control.setValue(msg.value); // azione inutile al momento
+           //control.setValue(msg.value); // azione inutile al momento
 
-           Object.keys(control.getButtonActions()).forEach(device => {
-               if (device === "mediaout") {
-                   mediaout.send(control.getButtonActions()[device]);
-               } else if (device === "vmix" && control.vmixChannel) {
-                   vmix.doCommand({type: control.getButtonActions()[device], input: control.vmixChannel, value: control.vmixValue});
-               } else if (device === "bose" && control.boseChannel) {
-                   bose.doCommand({module: control.boseModule, type: control.getButtonActions()[device], input: control.boseChannel});
-               } else if (device === "blast" && control.blastType) {
-                   blast.doCommand({function: control.getButtonActions()[device], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
-                   control.setState("blast", !control.getState("blast"));
-               } else if (device === "dicaffeine" && control.getButtonActions()[device]) {
-                    if (!control.dicaffeineId){ //esegue lo stesso comando su tutti player se non viene definito un id specifico
-                        dicaffeine.forEach(dicaff => {
-                            dicaff.updateStatus(control.getButtonActions()[device]);      
-                        });
-                    } else { //altrimenti esegue il comando solamente sul player indicato
-                        const dicaff = dicaffeine.find( entry => entry.id === String(control.dicaffeineId));
-                        dicaff.updateStatus(control.getButtonActions()[device]);
-                    }           
-               } else if (device === "ha" && control.getButtonActions()[device]) {
-                   console.log(control.haType, control.haEntity, control.getButtonActions()[device]);
-                   test({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
-               }    
-           });
+           operateButtons(control);
+
        }
     });
 });
 
 
+
 // ----------------------------//
 // Evento Nota OFF MIDI        //
 // ----------------------------//
-
 midi.on('noteoff', msg => {
 
    if (debug) {console.log(msg)};
@@ -428,10 +251,10 @@ midi.on('noteoff', msg => {
 });
 
 
+
 // ----------------------------//
 // Evento msg da Mediaout      //
 // ----------------------------//
-
 mediaout.on("message", msg => {
 
     if (debug > 4) {console.log("Messaggio UDP :", msg)};
@@ -444,7 +267,6 @@ mediaout.on("message", msg => {
 // ----------------------------//
 // Elabora i feedback da vMix ottenuti tramite la funzione 
 // vmix.updateStatus() richiamata a tempo (vedi timers)
-
 vmix.on("status", status => {
     
     
@@ -548,7 +370,6 @@ bose.on("connected", msg => {
 // ----------------------------//
 // Evento msg da Bose          //
 // ----------------------------//
-
 bose.on("data", data => {
  
     const messages = data.split(";");  // Split the message into individual messages based on the semicolon delimiter
@@ -605,16 +426,81 @@ blast.on("switch_now", input => {
             if (((control instanceof Button) || (control instanceof ButtonCC)) && control.vmixChannel === input && control.vmixType === "transition") {
                 vmix.doCommand({type: control.getButtonActions().vmix, input: control.vmixChannel, value: control.vmixValue});
             }
-            //if (control.midiNote === 25 && control.getButtonActions().blast === "CAM_AUTOSWITCH") {
-            //    control.setState("blast", true);
-            //}
         });
 });
+
+
+// ----------------------------//
+// Functions                   //
+// ----------------------------//
+function buildButton(buttonConfig, buttonType){
+
+    // Prepara le azioni del pulsante
+    const buttonActions = {
+        vmix: buttonConfig.vmix?.function,
+        bose: buttonConfig.bose?.function,
+        blast: buttonConfig.blast?.function,
+        dicaffeine: buttonConfig.dicaffeine?.function,
+        ha: buttonConfig.ha?.function
+    };
+
+    if (buttonConfig.mediaout?.function) {
+        buttonActions.mediaout =
+        MediaoutCommand.fromString(buttonConfig.mediaout.function);
+    }
+
+    const button = new buttonType({
+
+        midiNote: buttonConfig.midiNote,
+        midiCC: buttonConfig.midiCC,
+        vmixType: buttonConfig.vmix?.type,
+        vmixChannel: buttonConfig.vmix?.input,
+        vmixValue: buttonConfig.vmix?.value,
+        boseChannel: buttonConfig.bose?.channel,
+        boseModule: buttonConfig.bose?.module,
+        blastType: buttonConfig.blast?.type,
+        blastParameters: buttonConfig.blast?.parameters,
+        haType: buttonConfig.ha?.type,
+        haEntity: buttonConfig.ha?.entity,
+        dicaffeineId: buttonConfig.dicaffeine?.id,
+        ledFeedBack: buttonConfig.ledFeedBack,
+        key: buttonConfig.key,
+        buttonActions
+    });
+    midi.addControl(button);
+}
+
+function operateButtons(control) {
+    Object.keys(control.getButtonActions()).forEach(device => {
+               if (device === "mediaout") {
+                   mediaout.send(control.getButtonActions()[device]);
+               } else if (device === "vmix" && control.vmixChannel) {
+                   vmix.doCommand({type: control.getButtonActions()[device], input: control.vmixChannel, value: control.vmixValue});
+               } else if (device === "bose" && control.boseChannel) {
+                   bose.doCommand({module: control.boseModule, type: control.getButtonActions()[device], input: control.boseChannel});
+               } else if (device === "blast" && control.blastType) {
+                   blast.doCommand({function: control.getButtonActions()[device], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
+                   control.setState("blast", !control.getState("blast"));
+               } else if (device === "dicaffeine" && control.getButtonActions()[device]) {
+                    if (!control.dicaffeineId){ //esegue lo stesso comando su tutti player se non viene definito un id specifico
+                        dicaffeine.forEach(dicaff => {
+                            dicaff.updateStatus(control.getButtonActions()[device]);      
+                        });
+                    } else { //altrimenti esegue il comando solamente sul player indicato
+                        const dicaff = dicaffeine.find( entry => entry.id === String(control.dicaffeineId));
+                        dicaff.updateStatus(control.getButtonActions()[device]);
+                    }           
+               } else if (device === "ha" && control.getButtonActions()[device]) {
+                   console.log(control.haType, control.haEntity, control.getButtonActions()[device]);
+                   test({domain: `${control.haType}`, function: `${control.getButtonActions()[device]}`, entity: `${control.haEntity}`});
+               }    
+           });
+}
+
 
 // ----------------------------//
 // Timers                      //
 // ----------------------------//
-
 // Send Alive message every 2Sec to mediaout to keep connetion active
 setInterval(() => {
     mediaout.send(MediaoutCommand.ALIVE);
