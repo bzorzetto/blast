@@ -11,12 +11,13 @@ import AudioConverter from './utils/AudioConverter.js';
 import Blast from './utils/blast.js';
 import MediaoutCommand from './mediaout/MediaoutActions.js';
 import DicaffeineClient from './dicaffeine/dicaffeine.js';
-import HomeAssistantClient from './ha/ha3.js';
+import KeyboardManager from './kbd/KeyboardManager.js';
+import HomeAssistantClient from './ha/ha.js';
+
 
 // ----------------------------//
 // Start Midi Engine           //
 // ----------------------------//
-
 const configFile = './config.json';
 const midi = new MidiManager();
 const midiInputDevices = midi.getInputs();
@@ -27,7 +28,6 @@ const midiOutputDevices = midi.getOutputs();
 // ----------------------------//
 // 1. Controllo configurazione //
 // ----------------------------//
-
 if (!fs.existsSync(configFile)) {
 
     console.log("Nessun file config.json trovato.");
@@ -46,10 +46,10 @@ if (!fs.existsSync(configFile)) {
    process.exit(0);
 }
 
+
 // ----------------------------//
 // 2. Carica configurazione    //
 // ----------------------------//
-
 const config = JSON.parse(
     fs.readFileSync(configFile, 'utf8')
 );
@@ -58,7 +58,6 @@ const config = JSON.parse(
 // ----------------------------//
 // 3. Verifica dispositivi     //
 // ----------------------------//
-
 const input = midi.findInput(
     config.midi.input
 );
@@ -85,7 +84,6 @@ if (!output) {
 // ----------------------------//
 // 4. Tutto OK                 //
 // ----------------------------//
-
 console.log("\nConfigurazione MIDI OK.");
 
 console.log(
@@ -104,16 +102,16 @@ midi.openOutput(output.name);
 // ----------------------------//
 // Connect to remote hosts     //
 // ----------------------------//
-
 const vmix = new VmixClient(config.hosts.vmix?.host || "127.0.0.1", config.hosts.vmix?.apiPort || 8099, config.hosts.vmix?.webPort || 8088);
 const bose = new BoseClient(config.hosts.bose?.host || "127.0.0.1", config.hosts.bose?.port || 10055);
 const mediaout = new MediaoutClient(config.hosts.mediaout?.host || "127.0.0.1", config.hosts?.mediaout.portTx || 5400, config.hosts.mediaout?.portRx || 6400);
 const blast = new Blast();
 const dicaffeine = [];
+const keyboard = new KeyboardManager();
 //const ha = new HomeAssistantClient(config.hosts.ha?.host || "127.0.0.1", config.hosts.ha?.port || 8123, config.hosts.ha?.haApiTokenBR || "", {protocol: 'http', debug: true});
 const ha = new HomeAssistantClient({
     url:  `http://${config.hosts.ha.host}:${config.hosts.ha.port}`,
-    token: `${config.hosts.ha?.haApiTokenBR}`
+    token: `${config.hosts.ha?.haApiToken}`
 })
 
 
@@ -131,124 +129,115 @@ haConnect();
 bose.setDebug(debug);
 vmix.setDebug(debug);
 
+
 // ----------------------------//
 // Add midi controls           //
 // ----------------------------//
-
 // Aggiungo gli slider definiti nel file di configurazione
-Object.keys(config.sliders).forEach(sliderId => {
-    const sliderConfig = config.sliders[sliderId];
-    const slider = new Slider({
-        midiCC: sliderConfig.midiCC,    
-    vmixChannel: sliderConfig.vmix?.input,
-    boseChannel: sliderConfig.bose?.channel,
-    boseModule: sliderConfig.bose?.module,
-    haType: sliderConfig.ha?.type,
-    haEntity: sliderConfig.ha?.entity,
+try {
+    Object.keys(config.sliders).forEach(sliderId => {
+        const sliderConfig = config.sliders[sliderId];
+        const slider = new Slider({
+            midiCC: sliderConfig.midiCC,    
+        vmixChannel: sliderConfig.vmix?.input,
+        boseChannel: sliderConfig.bose?.channel,
+        boseModule: sliderConfig.bose?.module,
+        haType: sliderConfig.ha?.type,
+        haEntity: sliderConfig.ha?.entity,
+        });
+        midi.addControl(slider);
     });
-    midi.addControl(slider);
-});
+} catch {
+    console.log("Nessuo slider midi trovato");
+}
+
 
 // Aggiungo i pulsanti pilotati da note nidi definiti nel file di configurazione
-Object.keys(config.buttonsMidiNote).forEach(buttonId => {
+try {
+    Object.keys(config.buttonsMidiNote).forEach(buttonId => {
 
-    const buttonConfig = config.buttonsMidiNote[buttonId];
-    
-    // Prepara le azioni del pulsante
-    const buttonActions = {
-        vmix: buttonConfig.vmix?.function,
-        bose: buttonConfig.bose?.function,
-        blast: buttonConfig.blast?.function,
-        dicaffeine: buttonConfig.dicaffeine?.function,
-        ha: buttonConfig.ha?.function,
-    };
+        const buttonConfig = config.buttonsMidiNote[buttonId];
+        buildButton(buttonConfig, Button);
 
-    if (buttonConfig.mediaout?.function) {
-        buttonActions.mediaout =
-        MediaoutCommand.fromString(buttonConfig.mediaout.function);
-    }
-
-    const button = new Button({
-
-        midiNote: buttonConfig.midiNote,
-        vmixType: buttonConfig.vmix?.type,
-        vmixChannel: buttonConfig.vmix?.input,
-        vmixValue: buttonConfig.vmix?.value,
-        boseChannel: buttonConfig.bose?.channel,
-        boseModule: buttonConfig.bose?.module,
-        blastType: buttonConfig.blast?.type,
-        blastParameters: buttonConfig.blast?.parameters,
-        haType: buttonConfig.ha?.type,
-        haEntity: buttonConfig.ha?.entity,
-        ledFeedBack: buttonConfig.ledFeedBack,
-        buttonActions
     });
-    midi.addControl(button);
-});
+} catch {
+    console.log("Nessun pulsante Midi trovato");
+}
 
 // Aggiungo i pulsanti pilotati da Control Change midi definiti nel file di configurazione
-Object.keys(config.buttonsMidiCC).forEach(buttonId => {
+try {
+    Object.keys(config.buttonsMidiCC).forEach(buttonId => {
 
-    const buttonConfig = config.buttonsMidiCC[buttonId];
+        const buttonConfig = config.buttonsMidiCC[buttonId];
+        buildButton(buttonConfig, ButtonCC);
     
-    // Preparo le azioni del pulsante
-    const buttonActions = {
-        vmix: buttonConfig.vmix?.function,
-        bose: buttonConfig.bose?.function,
-        blast: buttonConfig.blast?.function,
-        dicaffeine: buttonConfig.dicaffeine?.function,
-        ha: buttonConfig.ha?.function
-    };
-
-    if (buttonConfig.mediaout?.function) {
-        buttonActions.mediaout =
-        MediaoutCommand.fromString(buttonConfig.mediaout.function);
-    }
-
-    const button = new ButtonCC({
-
-        midiCC: buttonConfig.midiCC,
-        vmixType: buttonConfig.vmix?.type,
-        vmixChannel: buttonConfig.vmix?.input,
-        vmixValue: buttonConfig.vmix?.value,
-        boseChannel: buttonConfig.bose?.channel,
-        boseModule: buttonConfig.bose?.module,
-        blastType: buttonConfig.blast?.type,
-        blastParameters: buttonConfig.blast?.parameters,
-        haType: buttonConfig.ha?.type,
-        haEntity: buttonConfig.ha?.entity,
-        ledFeedBack: buttonConfig.ledFeedBack,
-        buttonActions
     });
-    midi.addControl(button);
-});
+} catch {
+    console.log("Nessun pulsante Midi CC trovato");
+}
 
-// Dicaffeine Objects
-Object.keys(config.hosts.dicaffeine).forEach(entry => {
 
-    const dicaffeineConfig = config.hosts.dicaffeine[entry];
-    const dicaff = new DicaffeineClient(dicaffeineConfig.host, dicaffeineConfig.port);
-    
-    dicaff.on("status", status => {
+// ----------------------------//
+// Add Dicaffeine controls     //
+// ----------------------------//
+try {
+    Object.keys(config.hosts.dicaffeine).forEach(entry => {
 
-        if (debug > 2) {console.log(`Dicaffeine [${entry}] ===>`, status);}
+        const dicaffeineConfig = config.hosts.dicaffeine[entry];
+        const dicaff = new DicaffeineClient(dicaffeineConfig.host, dicaffeineConfig.port);
+        
+        dicaff.on("status", status => {
+
+            if (debug > 2) {console.log(`Dicaffeine [${entry}] ===>`, status);}
+
+        });
+
+        dicaffeine.push(dicaff);  
 
     });
+} catch {
+    console.log("Nessun player Dicaffeine trovato");
+}
 
-    dicaffeine.push(dicaff);  
 
-});
+// ----------------------------//
+// Add Keyboard controls       //
+// ----------------------------//
+try {
+    Object.keys(config.keyboard).forEach(entry => {
+
+        const buttonConfig = config.keyboard[entry];
+
+        buildButton(buttonConfig, Button);
+
+        keyboard.on(buttonConfig.key, () => {
+            
+            midi.controls.forEach( control => {
+                if (((control instanceof Button) || (control instanceof ButtonCC)) && buttonConfig.key === control.key) {
+                    operateButtons(control);
+                }  
+            });
+        });
+    });
+} catch {
+    console.log("Nessun hotkey da tastiera trovato");
+}
+
+// ----------------------------//
+// Start Kbd Engine           //
+// ----------------------------//
+keyboard.start();
+
+
 
 // ----------------------------//
 // Evento Control Change MIDI  //
 // ----------------------------//
-
 midi.on("cc", msg => {
 
     if (debug) {console.log(msg)};
 
 // Gestione sliders
-
     midi.controls.forEach(control => {
         if (control instanceof Slider && msg.controller === control.midiCC) {
             control.setValue(msg.value);
@@ -268,29 +257,13 @@ midi.on("cc", msg => {
 // Gestione ButtonsCC
         if (control instanceof ButtonCC && msg.controller === control.midiCC && msg.value > 0) {
 
-           control.setValue(msg.value); // azione inutile al momento
+           //control.setValue(msg.value); // azione inutile al momento
+           operateButtons(control);
 
-           Object.keys(control.getButtonActions()).forEach(device => {
-               if (device === "mediaout") {
-                   mediaout.send(control.getButtonActions()[device]);
-               } else if (device === "vmix" && control.vmixChannel) {
-                   vmix.doCommand({type: control.getButtonActions()[device], input: control.vmixChannel, value: control.vmixValue});
-               } else if (device === "bose" && control.boseChannel) {
-                   bose.doCommand({module: control.boseModule, type: control.getButtonActions()[device], input: control.boseChannel});
-               } else if (device === "blast" && control.blastType) {
-                   blast.doCommand({function: control.getButtonActions()[device], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
-                   control.setState("blast", !control.getState("blast"));
-               } else if (device === "dicaffeine" && control.getButtonActions()[device]) {
-                   dicaffeine.forEach(dicaff => {
-                       dicaff.updateStatus(control.getButtonActions()[device]);      
-                   });            
-               } else if (device === "ha" && control.getButtonActions()[device]) {
-                   ha.callService(control.haType, control.getButtonActions()[device], {entity_id: `${control.haEntity}`})
-               }    
-           });
        }
     });
 });
+
 
 // ----------------------------//
 // Evento Nota ON MIDI         //
@@ -300,30 +273,9 @@ midi.on("noteon", msg => {
     if (debug) {console.log(msg)};
 
 // Gestione Buttons Midi Note
-
     midi.controls.forEach(control => {
        if (((control instanceof Button) || (control instanceof ButtonCC)) && msg.note === control.midiNote) {
-        
-           control.setValue(msg.value); // azione inutile al momento
-
-           Object.keys(control.getButtonActions()).forEach(device => {
-               if (device === "mediaout") {
-                   mediaout.send(control.getButtonActions()[device]);
-               } else if (device === "vmix" && control.vmixChannel) {
-                   vmix.doCommand({type: control.getButtonActions()[device], input: control.vmixChannel, value: control.vmixValue});
-               } else if (device === "bose" && control.boseChannel) {
-                   bose.doCommand({module: control.boseModule, type: control.getButtonActions()[device], input: control.boseChannel});
-               } else if (device === "blast" && control.blastType) {
-                   blast.doCommand({function: control.getButtonActions()[device], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
-                   control.setState("blast", !control.getState("blast"));
-               } else if (device === "dicaffeine" && control.getButtonActions()[device]) {
-                   dicaffeine.forEach(dicaff => {
-                       dicaff.updateStatus(control.getButtonActions()[device]);      
-                   });            
-               } else if (device === "ha" && control.getButtonActions()[device]) {
-                   ha.callService(control.haType, control.getButtonActions()[device], {entity_id: `${control.haEntity}`})
-               }    
-           });
+           operateButtons(control);
        }
     });
 });
@@ -332,7 +284,6 @@ midi.on("noteon", msg => {
 // ----------------------------//
 // Evento Nota OFF MIDI        //
 // ----------------------------//
-
 midi.on('noteoff', msg => {
 
    if (debug) {console.log(msg)};
@@ -343,7 +294,6 @@ midi.on('noteoff', msg => {
 // ----------------------------//
 // Evento msg da Mediaout      //
 // ----------------------------//
-
 mediaout.on("message", msg => {
 
     if (debug > 4) {console.log("Messaggio UDP :", msg)};
@@ -356,7 +306,6 @@ mediaout.on("message", msg => {
 // ----------------------------//
 // Elabora i feedback da vMix ottenuti tramite la funzione 
 // vmix.updateStatus() richiamata a tempo (vedi timers)
-
 vmix.on("status", status => {
     
     
@@ -369,14 +318,11 @@ vmix.on("status", status => {
         midi.controls.forEach(control => {
         // Gestione dello stato "muted" degli ingressi  
             if (((control instanceof Button) || (control instanceof ButtonCC)) && !(control.vmixChannel === undefined)) { 
-                //try {
                     const input = inputs.find( input => input.number === String(control.vmixChannel) );
                     if (input && control.buttonActions.vmix.includes("MUTE")) { 
                         const muted = input.muted === "True"; 
                         control.setState("vmix", muted);
                     }
-                //} catch {
-                //}
         // Gestione dello stato "solo" degli ingressi        
                 if (input && control.buttonActions.vmix.includes("SOLO")) { 
                     const solo = input.solo === "True"; 
@@ -460,7 +406,6 @@ bose.on("connected", msg => {
 // ----------------------------//
 // Evento msg da Bose          //
 // ----------------------------//
-
 bose.on("data", data => {
  
     const messages = data.split(";");  // Split the message into individual messages based on the semicolon delimiter
@@ -524,7 +469,6 @@ blast.on("switch_now", input => {
 // ----------------------------//
 // Eventi Home Assistant       //
 // ----------------------------//
-
 ha.on('connected', () => {
 
     console.log('Home Assistant connesso');
@@ -558,11 +502,71 @@ midi.controls.forEach(control => {
         });
 
 
+// ----------------------------//
+// Functions                   //
+// ----------------------------//
+function buildButton(buttonConfig, buttonType){
+
+    // Prepara le azioni del pulsante
+    const buttonActions = {
+        vmix: buttonConfig.vmix?.function,
+        bose: buttonConfig.bose?.function,
+        blast: buttonConfig.blast?.function,
+        dicaffeine: buttonConfig.dicaffeine?.function,
+        ha: buttonConfig.ha?.function
+    };
+
+    if (buttonConfig.mediaout?.function) {
+        buttonActions.mediaout =
+        MediaoutCommand.fromString(buttonConfig.mediaout.function);
+    }
+
+    const button = new buttonType({
+
+        midiNote: buttonConfig.midiNote,
+        midiCC: buttonConfig.midiCC,
+        vmixType: buttonConfig.vmix?.type,
+        vmixChannel: buttonConfig.vmix?.input,
+        vmixValue: buttonConfig.vmix?.value,
+        boseChannel: buttonConfig.bose?.channel,
+        boseModule: buttonConfig.bose?.module,
+        blastType: buttonConfig.blast?.type,
+        blastParameters: buttonConfig.blast?.parameters,
+        haType: buttonConfig.ha?.type,
+        haEntity: buttonConfig.ha?.entity,
+        dicaffeineId: buttonConfig.dicaffeine?.id,
+        ledFeedBack: buttonConfig.ledFeedBack,
+        key: buttonConfig.key,
+        buttonActions
+    });
+    midi.addControl(button);
+}
+
+function operateButtons(control){
+    Object.keys(control.getButtonActions()).forEach(device => {
+        if (device === "mediaout") {
+            mediaout.send(control.getButtonActions()[device]);
+        } else if (device === "vmix" && control.vmixChannel) {
+            vmix.doCommand({type: control.getButtonActions()[device], input: control.vmixChannel, value: control.vmixValue});
+        } else if (device === "bose" && control.boseChannel) {
+            bose.doCommand({module: control.boseModule, type: control.getButtonActions()[device], input: control.boseChannel});
+        } else if (device === "blast" && control.blastType) {
+            blast.doCommand({function: control.getButtonActions()[device], delay: control.blastParameters.delay, inputs: control.blastParameters.inputs});
+            control.setState("blast", !control.getState("blast"));
+        } else if (device === "dicaffeine" && control.getButtonActions()[device]) {
+            dicaffeine.forEach(dicaff => {
+                dicaff.updateStatus(control.getButtonActions()[device]);      
+            });            
+        } else if (device === "ha" && control.getButtonActions()[device]) {
+            ha.callService(control.haType, control.getButtonActions()[device], {entity_id: `${control.haEntity}`})
+        }    
+    });
+}
+
 
 // ----------------------------//
 // Timers                      //
 // ----------------------------//
-
 // Send Alive message every 2Sec to mediaout to keep connetion active
 setInterval(() => {
     mediaout.send(MediaoutCommand.ALIVE);

@@ -26,8 +26,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@stagetimerio/grandiose": "^0.2.0",
     "fast-xml-parser": "^5.11.1",
     "jzz": "^1.9.6",
+    "uiohook-napi": "^1.5.5",
     "ws": "^8.21.3"
   }
 }
