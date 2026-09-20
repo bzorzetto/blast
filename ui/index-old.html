@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html lang="it">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>BLAST</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+ <h1>BLAST</h1>
+
+    <pre id="audio"></pre>
+
+    <script>
+
+        const audioElement = document.getElementById("audio");
+
+        window.blast.onAudioLevels((levels) => {
+
+            audioElement.textContent =
+                JSON.stringify(levels, null, 2);
+
+        });
+
+    </script>
+
+    <header>
+
+        <img
+            src="assets/blast-logo.png"
+            class="logo"
+        >
+
+        <span class="status">
+            ● BLAST RUNNING
+        </span>
+
+    </header>
+
+
+    <main>
+
+        <section>
+
+            <h2>System</h2>
+
+            <div>
+                MIDI
+                <span>CONNECTED</span>
+            </div>
+
+            <div>
+                vMix
+                <span>CONNECTED</span>
+            </div>
+
+            <div>
+                Home Assistant
+                <span>CONNECTED</span>
+            </div>
+
+        </section>
+
+
+        <section>
+
+            <h2>Audio</h2>
+
+            <div class="meter">
+
+                <div
+                    id="master-meter"
+                    class="meter-level">
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

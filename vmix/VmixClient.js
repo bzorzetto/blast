@@ -305,6 +305,33 @@ export default class VmixClient extends EventEmitter {
     audioBus(input, bus) {
         this.send(`FUNCTION AudioBus Input=${input}&Value=${bus}`);
     }
+
+    getAudioLevels(status) {
+        const audio = status?.vmix?.audio;
+
+        if (!audio) {
+            return null;
+        }
+
+        const getMeter = (channel) => ({
+            left: Number(channel?.meterF1 ?? 0),
+            right: Number(channel?.meterF2 ?? 0),
+            volume: Number(channel?.volume ?? 0),
+            muted: channel?.muted === "True"
+        });
+
+        return {
+            master: getMeter(audio.master),
+            busA: getMeter(audio.busA),
+            busB: getMeter(audio.busB),
+            busC: getMeter(audio.busC),
+            busD: getMeter(audio.busD),
+            busE: getMeter(audio.busE),
+            busF: getMeter(audio.busF),
+            busG: getMeter(audio.busG)
+        };
+    }
+
 }
 
 //module.exports=VmixClient;

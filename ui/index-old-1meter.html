@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BLAST Audio Meter</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #181818;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            height: 100vh;
+        }
+
+        .meter-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .channel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .label {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #aaa;
+        }
+
+        .meter {
+            position: relative;
+
+            width: 30px;
+            height: 300px;
+
+            background: #292929;
+            border: 1px solid #444;
+
+            overflow: hidden;
+        }
+
+        .level {
+            position: absolute;
+
+            bottom: 0;
+            left: 0;
+
+            width: 100%;
+            height: 0%;
+
+            background: linear-gradient(
+                to top,
+                #00c853 0%,
+                #00c853 70%,
+                #ffd600 85%,
+                #ff9800 93%,
+                #f44336 100%
+            );
+
+            transition: height 50ms linear;
+        }
+
+        .scale {
+            height: 300px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+            font-size: 11px;
+            color: #888;
+
+            margin-right: 5px;
+        }
+
+        .value {
+            margin-top: 12px;
+
+            font-family: monospace;
+            font-size: 8px;
+
+            color: #ddd;
+
+            width: 50px;
+            text-align: center;
+        }
+
+        .title {
+            position: absolute;
+            top: 30px;
+
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="title">
+        MASTER
+    </div>
+
+    <div class="meter-container">
+
+        <!-- LEFT -->
+        <div class="channel">
+
+            <div class="label">L</div>
+
+            <div class="meter">
+                <div
+                    id="level-left"
+                    class="level">
+                </div>
+            </div>
+
+            <div
+                id="value-left"
+                class="value">
+                -∞ dB
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT -->
+        <div class="channel">
+
+            <div class="label">R</div>
+
+            <div class="meter">
+                <div
+                    id="level-right"
+                    class="level">
+                </div>
+            </div>
+
+            <div
+                id="value-right"
+                class="value">
+                -∞ dB
+            </div>
+
+        </div>
+
+
+        <!-- SCALE -->
+
+        <div class="scale">
+
+            <span>0</span>
+            <span>-6</span>
+            <span>-12</span>
+            <span>-18</span>
+            <span>-24</span>
+            <span>-30</span>
+            <span>-36</span>
+            <span>-42</span>
+            <span>-48</span>
+            <span>-54</span>
+            <span>-60</span>
+
+        </div>
+
+    </div>
+
+
+<script>
+
+    const leftMeter = document.getElementById("level-left");
+    const rightMeter = document.getElementById("level-right");
+
+    const leftValue = document.getElementById("value-left");
+    const rightValue = document.getElementById("value-right");
+
+
+    /*
+     * Converte il valore lineare di vMix in dB.
+     *
+     * Esempio:
+     *
+     * 1       ->   0 dB
+     * 0.5     ->  -6 dB
+     * 0.1     -> -20 dB
+     * 0.01    -> -40 dB
+     *
+     */
+
+    function linearToDb(value) {
+
+        if (value <= 0) {
+            return -Infinity;
+        }
+
+        return 20 * Math.log10(value);
+    }
+
+
+    /*
+     * Converte i dB in percentuale del meter.
+     *
+     * Il meter visualizza da -60 dB a 0 dB.
+     */
+
+    function dbToPercent(db) {
+
+        if (db <= -60) {
+            return 0;
+        }
+
+        if (db >= 0) {
+            return 100;
+        }
+
+        return ((db + 60) / 60) * 100;
+    }
+
+
+    function updateChannel(element, valueElement, linearValue) {
+
+        const db = linearToDb(linearValue);
+
+        const percent = dbToPercent(db);
+
+        element.style.height = percent + "%";
+
+
+        if (!Number.isFinite(db)) {
+
+            valueElement.textContent = "-∞ dB";
+
+        } else {
+
+            valueElement.textContent =
+                db.toFixed(1) + " dB";
+
+        }
+
+    }
+
+
+    /*
+     * Ricezione dati da Electron
+     */
+
+    window.blast.onAudioLevels((levels) => {
+
+        const master = levels.master;
+
+        updateChannel(
+            leftMeter,
+            leftValue,
+            master.left
+        );
+
+        updateChannel(
+            rightMeter,
+            rightValue,
+            master.right
+        );
+
+    });
+
+</script>
+
+</body>
+</html>

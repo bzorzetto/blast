@@ -1,4 +1,4 @@
-const debug = 2;  // false = disable, true or 1, 2, 3 set log verbosity   
+const debug = 4;  // false = disable, true or 1, 2, 3 set log verbosity   
 import fs from 'fs';
 import MidiManager from './midi/MidiManager.js';
 import VmixClient from './vmix/VmixClient.js';
@@ -13,12 +13,21 @@ import MediaoutCommand from './mediaout/MediaoutActions.js';
 import DicaffeineClient from './dicaffeine/dicaffeine.js';
 import KeyboardManager from './kbd/KeyboardManager.js';
 import HomeAssistantClient from './ha/ha.js';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+
+// ----------------------------//
+// Preload config file         //
+// ----------------------------//
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const configFile = path.join(__dirname,'config.json');
 
 
 // ----------------------------//
 // Start Midi Engine           //
 // ----------------------------//
-const configFile = './config.json';
 const midi = new MidiManager();
 const midiInputDevices = midi.getInputs();
 const midiOutputDevices = midi.getOutputs();
@@ -111,7 +120,7 @@ const keyboard = new KeyboardManager();
 //const ha = new HomeAssistantClient(config.hosts.ha?.host || "127.0.0.1", config.hosts.ha?.port || 8123, config.hosts.ha?.haApiTokenBR || "", {protocol: 'http', debug: true});
 const ha = new HomeAssistantClient({
     url:  `http://${config.hosts.ha.host}:${config.hosts.ha.port}`,
-    token: `${config.hosts.ha?.haApiToken}`
+    token: `${config.hosts.ha?.haApiTokenBR}`
 })
 
 
@@ -211,8 +220,11 @@ try {
         buildButton(buttonConfig, Button);
 
         keyboard.on(buttonConfig.key, () => {
+
+            if (debug > 2) {console.log("KBD ===> Premuto il tasto:", buttonConfig.key);}
             
             midi.controls.forEach( control => {
+                 
                 if (((control instanceof Button) || (control instanceof ButtonCC)) && buttonConfig.key === control.key) {
                     operateButtons(control);
                 }  
@@ -308,7 +320,10 @@ mediaout.on("message", msg => {
 // vmix.updateStatus() richiamata a tempo (vedi timers)
 vmix.on("status", status => {
     
+    const audioLevels = vmix.getAudioLevels(status);
     
+    process.emit("blast:audioLevels", audioLevels);
+
     if (debug > 4) {console.log("Vmix ===> :", status)};
 
         const inputs = status.vmix.inputs.input;
