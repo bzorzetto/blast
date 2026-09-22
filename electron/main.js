@@ -20,7 +20,7 @@ let splashWindow = null;
 let tray = null;
 
 // ======================================================
-// RICEZIONE DATI DA app.js
+// RICEZIONE DATI DA BlastCore.js
 // ======================================================
 
 process.on("blast:audioLevels", (audioLevels) => {
@@ -144,10 +144,7 @@ function createMainWindow() {
 
     });
 
-    console.log(
-    "PRELOAD PATH:",
-    path.join(__dirname, "preload.js")
-);
+    //console.log("PRELOAD PATH:", path.join(__dirname, "preload.js"));
     
 }
 
@@ -234,10 +231,10 @@ async function startBlast() {
 
 
     /*
-     * Questo import esegue app.js.
+     * Questo import esegue BlastCore.js.
      */
 
-    blastCore = await import('../app.js');
+    blastCore = await import('../BlastCore.js');
 
 
     console.log('BLAST: Core avviato.');
@@ -285,7 +282,7 @@ app.whenReady().then(async () => {
 
         mainWindow.hide();
 
-    }, 2500);
+    }, 3500);
     
 
 });

@@ -2,307 +2,16 @@
 <html lang="it">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta
+       http-equiv="Content-Security-Policy"
+       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
+     />
     <title>BLAST Audio</title>
-
-    <style>
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            margin: 0;
-            width: 100%;
-            height: 100%;
-
-            background: #181818;
-            color: #ffffff;
-
-            font-family: Arial, Helvetica, sans-serif;
-
-            overflow: hidden;
-        }
-
-
-        /* =====================================================
-           LAYOUT PRINCIPALE
-           ===================================================== */
-
-        .audio-panel {
-            width: 100%;
-            height: 100%;
-
-            display: flex;
-            flex-direction: column;
-        }
-
-
-        /* =====================================================
-           TITOLO
-           ===================================================== */
-
-        .title {
-            height: 55px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-size: 20px;
-            font-weight: bold;
-
-            color: #ffffff;
-        }
-
-
-        /* =====================================================
-           AREA METERS
-           ===================================================== */
-
-        .meters-area {
-            flex: 1;
-
-            display: flex;
-
-            padding: 20px 30px 30px 15px;
-
-            gap: 20px;
-        }
-
-
-        /* =====================================================
-           SCALA DB
-           ===================================================== */
-
-        .db-scale {
-
-            width: 35px;
-
-            height: 300px;
-
-            display: flex;
-            flex-direction: column;
-
-            justify-content: space-between;
-
-            color: #999;
-
-            font-family: monospace;
-            font-size: 11px;
-
-            padding-top: 0;
-        }
-
-        .db-scale span {
-            text-align: right;
-        }
-
-
-        /* =====================================================
-           BUS
-           ===================================================== */
-
-        .bus {
-
-            flex: 1;
-
-            min-width: 90px;
-
-            display: flex;
-            flex-direction: column;
-
-            align-items: center;
-        }
-
-
-        .bus-name {
-
-            height: 30px;
-
-            font-size: 15px;
-            font-weight: bold;
-
-            color: #dddddd;
-        }
-
-
-        /* =====================================================
-           METER STEREO
-           ===================================================== */
-
-        .stereo-meter {
-
-            display: flex;
-
-            gap: 8px;
-
-            height: 300px;
-        }
-
-
-        /* =====================================================
-           SINGOLO CANALE
-           ===================================================== */
-
-        .channel {
-
-            display: flex;
-            flex-direction: column;
-
-            align-items: center;
-        }
-
-
-        .channel-label {
-
-            height: 20px;
-
-            font-size: 11px;
-
-            color: #999;
-        }
-
-
-        /* =====================================================
-           METER
-           ===================================================== */
-
-        .meter {
-
-            position: relative;
-
-            width: 24px;
-            height: 300px;
-
-            background: #292929;
-
-            border: 1px solid #444;
-
-            overflow: hidden;
-        }
-
-
-        /* =====================================================
-           LIVELLO
-           ===================================================== */
-
-        .level {
-
-            position: absolute;
-
-            bottom: 0;
-            left: 0;
-
-            width: 100%;
-            height: 0%;
-
-            background: linear-gradient(
-                to top,
-
-                #00c853 0%,
-                #00c853 70%,
-
-                #8bc34a 75%,
-
-                #ffd600 85%,
-
-                #ff9800 93%,
-
-                #f44336 100%
-            );
-
-            transition: height 50ms linear;
-        }
-
-
-        /* =====================================================
-           VALORE DB
-           ===================================================== */
-
-        .value {
-
-            margin-top: 7px;
-
-            width: 45px;
-
-            text-align: center;
-
-            font-family: monospace;
-
-            font-size: 9px;
-
-            color: #cccccc;
-        }
-
-
-        /* =====================================================
-           SEPARATORI TRA BUS
-           ===================================================== */
-
-        .bus + .bus {
-
-            border-left: 1px solid #303030;
-
-            padding-left: 20px;
-        }
-
-
-        /* =====================================================
-           STATO MUTE
-           ===================================================== */
-
-        .muted .meter {
-
-            opacity: 0.35;
-        }
-
-        .muted .bus-name {
-
-            color: #777;
-        }
-
-
-        /* =====================================================
-           RESPONSIVE
-           ===================================================== */
-
-        @media (max-width: 700px) {
-
-            .meters-area {
-
-                gap: 10px;
-
-                padding-left: 5px;
-                padding-right: 10px;
-            }
-
-            .bus + .bus {
-
-                padding-left: 10px;
-            }
-
-            .meter {
-
-                width: 18px;
-            }
-
-            .stereo-meter {
-
-                gap: 5px;
-            }
-
-            .bus-name {
-
-                font-size: 12px;
-            }
-
-        }
-
-    </style>
+    
+    <link rel="stylesheet" href="index.css">
 
 </head>
 
@@ -356,10 +65,7 @@
              MASTER
              ================================================= -->
 
-        <div
-            class="bus"
-            data-bus="master"
-        >
+        <div class="bus" data-bus="master">
 
             <div class="bus-name">
                 MASTER
@@ -367,7 +73,6 @@
 
 
             <div class="stereo-meter">
-
 
                 <!-- LEFT -->
 
@@ -379,17 +84,12 @@
 
                     <div class="meter">
 
-                        <div
-                            id="master-left"
-                            class="level"
-                        ></div>
+                        <div id="master-left" class="level">
+                        </div>
 
                     </div>
 
-                    <div
-                        id="master-left-value"
-                        class="value"
-                    >
+                    <div id="master-left-value" class="value">
                         -∞ dB
                     </div>
 
@@ -406,22 +106,16 @@
 
                     <div class="meter">
 
-                        <div
-                            id="master-right"
-                            class="level"
-                        ></div>
+                        <div id="master-right" class="level">
+                        </div>
 
                     </div>
 
-                    <div
-                        id="master-right-value"
-                        class="value"
-                    >
+                    <div id="master-right-value" class="value">
                         -∞ dB
                     </div>
 
                 </div>
-
 
             </div>
 
@@ -432,18 +126,13 @@
              BUS A
              ================================================= -->
 
-        <div
-            class="bus"
-            data-bus="busA"
-        >
+        <div class="bus" data-bus="busA">
 
             <div class="bus-name">
                 A
             </div>
 
-
             <div class="stereo-meter">
-
 
                 <div class="channel">
 
@@ -453,22 +142,16 @@
 
                     <div class="meter">
 
-                        <div
-                            id="busA-left"
-                            class="level"
-                        ></div>
+                        <div id="busA-left" class="level">
+                        </div>
 
                     </div>
 
-                    <div
-                        id="busA-left-value"
-                        class="value"
-                    >
+                    <div id="busA-left-value" class="value">
                         -∞ dB
                     </div>
 
                 </div>
-
 
                 <div class="channel">
 
@@ -478,22 +161,16 @@
 
                     <div class="meter">
 
-                        <div
-                            id="busA-right"
-                            class="level"
-                        ></div>
+                        <div id="busA-right" class="level">
+                        </div>
 
                     </div>
 
-                    <div
-                        id="busA-right-value"
-                        class="value"
-                    >
+                    <div id="busA-right-value" class="value">
                         -∞ dB
                     </div>
 
                 </div>
-
 
             </div>
 
@@ -504,18 +181,13 @@
              BUS B
              ================================================= -->
 
-        <div
-            class="bus"
-            data-bus="busB"
-        >
+        <div class="bus" data-bus="busB">
 
             <div class="bus-name">
                 B
             </div>
 
-
             <div class="stereo-meter">
-
 
                 <div class="channel">
 
@@ -525,22 +197,16 @@
 
                     <div class="meter">
 
-                        <div
-                            id="busB-left"
-                            class="level"
-                        ></div>
+                        <div id="busB-left" class="level">
+                        </div>
 
                     </div>
 
-                    <div
-                        id="busB-left-value"
-                        class="value"
-                    >
+                    <div id="busB-left-value" class="value">
                         -∞ dB
                     </div>
 
                 </div>
-
 
                 <div class="channel">
 
@@ -550,22 +216,16 @@
 
                     <div class="meter">
 
-                        <div
-                            id="busB-right"
-                            class="level"
-                        ></div>
+                        <div id="busB-right" class="level">
+                        </div>
 
                     </div>
 
-                    <div
-                        id="busB-right-value"
-                        class="value"
-                    >
+                    <div id="busB-right-value" class="value">
                         -∞ dB
                     </div>
 
                 </div>
-
 
             </div>
 
@@ -576,18 +236,13 @@
              BUS C
              ================================================= -->
 
-        <div
-            class="bus"
-            data-bus="busC"
-        >
+        <div class="bus" data-bus="busC">
 
             <div class="bus-name">
                 C
             </div>
 
-
             <div class="stereo-meter">
-
 
                 <div class="channel">
 
@@ -597,22 +252,16 @@
 
                     <div class="meter">
 
-                        <div
-                            id="busC-left"
-                            class="level"
-                        ></div>
+                        <div id="busC-left" class="level">
+                        </div>
 
                     </div>
 
-                    <div
-                        id="busC-left-value"
-                        class="value"
-                    >
+                    <div id="busC-left-value" class="value">
                         -∞ dB
                     </div>
 
                 </div>
-
 
                 <div class="channel">
 
@@ -622,44 +271,32 @@
 
                     <div class="meter">
 
-                        <div
-                            id="busC-right"
-                            class="level"
-                        ></div>
+                        <div id="busC-right" class="level">
+                        </div>
 
                     </div>
 
-                    <div
-                        id="busC-right-value"
-                        class="value"
-                    >
+                    <div id="busC-right-value" class="value">
                         -∞ dB
                     </div>
 
                 </div>
 
-
             </div>
 
         </div>
-
 
         <!-- =================================================
              BUS D
              ================================================= -->
 
-        <div
-            class="bus"
-            data-bus="busD"
-        >
+        <div class="bus" data-bus="busD">
 
             <div class="bus-name">
                 D
             </div>
 
-
             <div class="stereo-meter">
-
 
                 <div class="channel">
 
@@ -669,22 +306,16 @@
 
                     <div class="meter">
 
-                        <div
-                            id="busD-left"
-                            class="level"
-                        ></div>
+                        <div id="busD-left" class="level">
+                        </div>
 
                     </div>
 
-                    <div
-                        id="busD-left-value"
-                        class="value"
-                    >
+                    <div id="busD-left-value" class="value">
                         -∞ dB
                     </div>
 
                 </div>
-
 
                 <div class="channel">
 
@@ -694,252 +325,168 @@
 
                     <div class="meter">
 
-                        <div
-                            id="busD-right"
-                            class="level"
-                        ></div>
+                        <div id="busD-right" class="level">
+                        </div>
 
                     </div>
 
-                    <div
-                        id="busD-right-value"
-                        class="value"
-                    >
+                    <div id="busD-right-value" class="value">
                         -∞ dB
                     </div>
 
                 </div>
 
-
             </div>
 
         </div>
-
-
     </div>
 
+    <!-- =================================================
+     CHANNEL METERS
+     ================================================= -->
+
+    <div class="mono-meters">
+
+        <div class="mono-bus" data-channel="CH1">
+            <div class="bus-name">CH1</div>
+
+            <div class="mono-meter">
+                <div class="channel-label">&nbsp;</div>
+
+                <div class="meter">
+                    <div id="ch1-level" class="level"></div>
+                </div>
+
+                <div id="ch1-value" class="value">
+                    -∞ dB
+                </div>
+            </div>
+        </div>
+
+
+        <div class="mono-bus" data-channel="CH2">
+            <div class="bus-name">CH2</div>
+
+            <div class="mono-meter">
+                <div class="channel-label">&nbsp;</div>
+
+                <div class="meter">
+                    <div id="ch2-level" class="level"></div>
+                </div>
+
+                <div id="ch2-value" class="value">
+                    -∞ dB
+                </div>
+            </div>
+        </div>
+
+
+        <div class="mono-bus" data-channel="CH3">
+            <div class="bus-name">CH3</div>
+
+            <div class="mono-meter">
+                <div class="channel-label">&nbsp;</div>
+
+                <div class="meter">
+                    <div id="ch3-level" class="level"></div>
+                </div>
+
+                <div id="ch3-value" class="value">
+                    -∞ dB
+                </div>
+            </div>
+        </div>
+
+
+        <div class="mono-bus" data-channel="CH4">
+            <div class="bus-name">CH4</div>
+
+            <div class="mono-meter">
+                <div class="channel-label">&nbsp;</div>
+
+                <div class="meter">
+                    <div id="ch4-level" class="level"></div>
+                </div>
+
+                <div id="ch4-value" class="value">
+                    -∞ dB
+                </div>
+            </div>
+        </div>
+
+
+        <div class="mono-bus" data-channel="CH5">
+            <div class="bus-name">CH5</div>
+
+            <div class="mono-meter">
+                <div class="channel-label">&nbsp;</div>
+
+                <div class="meter">
+                    <div id="ch5-level" class="level"></div>
+                </div>
+
+                <div id="ch5-value" class="value">
+                    -∞ dB
+                </div>
+            </div>
+        </div>
+
+
+        <div class="mono-bus" data-channel="CH6">
+            <div class="bus-name">CH6</div>
+
+            <div class="mono-meter">
+                <div class="channel-label">&nbsp;</div>
+
+                <div class="meter">
+                    <div id="ch6-level" class="level"></div>
+                </div>
+
+                <div id="ch6-value" class="value">
+                    -∞ dB
+                </div>
+            </div>
+        </div>
+
+
+        <div class="mono-bus" data-channel="CH7">
+            <div class="bus-name">CH7</div>
+
+            <div class="mono-meter">
+                <div class="channel-label">&nbsp;</div>
+
+                <div class="meter">
+                    <div id="ch7-level" class="level"></div>
+                </div>
+
+                <div id="ch7-value" class="value">
+                    -∞ dB
+                </div>
+            </div>
+        </div>
+
+
+        <div class="mono-bus" data-channel="CH8">
+            <div class="bus-name">CH8</div>
+
+            <div class="mono-meter">
+                <div class="channel-label">&nbsp;</div>
+                
+                <div class="meter">
+                    <div id="ch8-level" class="level"></div>
+                </div>
+
+                <div id="ch8-value" class="value">
+                    -∞ dB
+                </div>
+            </div>
+        </div>
+
+    </div>
+        
 </div>
 
-
-<script>
-
-    /*
-     * =========================================================
-     * CONVERSIONE LINEARE -> dB
-     * =========================================================
-     */
-
-    function linearToDb(value) {
-
-        value = Number(value);
-
-        if (!Number.isFinite(value) || value <= 0) {
-            return -Infinity;
-        }
-
-        return 20 * Math.log10(value);
-    }
-
-
-    /*
-     * =========================================================
-     * dB -> PERCENTUALE METER
-     *
-     * Il meter visualizza:
-     *
-     * -60 dB = 0%
-     *   0 dB = 100%
-     * =========================================================
-     */
-
-    function dbToPercent(db) {
-
-        if (!Number.isFinite(db)) {
-            return 0;
-        }
-
-        if (db <= -60) {
-            return 0;
-        }
-
-        if (db >= 0) {
-            return 100;
-        }
-
-        return ((db + 60) / 60) * 100;
-    }
-
-
-    /*
-     * =========================================================
-     * AGGIORNA UN SINGOLO CANALE
-     * =========================================================
-     */
-
-    function updateChannel(
-        levelElement,
-        valueElement,
-        linearValue
-    ) {
-
-        const db = linearToDb(linearValue);
-
-        const percent = dbToPercent(db);
-
-
-        levelElement.style.height =
-            percent + "%";
-
-
-        if (!Number.isFinite(db)) {
-
-            valueElement.textContent =
-                "-∞ dB";
-
-        } else {
-
-            valueElement.textContent =
-                db.toFixed(1) + " dB";
-
-        }
-
-    }
-
-
-    /*
-     * =========================================================
-     * CONFIGURAZIONE DEI BUS
-     * =========================================================
-     */
-
-    const buses = [
-
-        "master",
-        "busA",
-        "busB",
-        "busC",
-        "busD"
-
-    ];
-
-
-    /*
-     * =========================================================
-     * AGGIORNAMENTO DI UN BUS
-     * =========================================================
-     */
-
-    function updateBus(
-        busName,
-        data
-    ) {
-
-        if (!data) {
-            return;
-        }
-
-
-        const leftElement =
-            document.getElementById(
-                busName + "-left"
-            );
-
-
-        const rightElement =
-            document.getElementById(
-                busName + "-right"
-            );
-
-
-        const leftValueElement =
-            document.getElementById(
-                busName + "-left-value"
-            );
-
-
-        const rightValueElement =
-            document.getElementById(
-                busName + "-right-value"
-            );
-
-
-        if (
-            !leftElement ||
-            !rightElement ||
-            !leftValueElement ||
-            !rightValueElement
-        ) {
-            return;
-        }
-
-
-        updateChannel(
-            leftElement,
-            leftValueElement,
-            data.left
-        );
-
-
-        updateChannel(
-            rightElement,
-            rightValueElement,
-            data.right
-        );
-
-
-        /*
-         * Gestione MUTE
-         */
-
-        const busElement =
-            document.querySelector(
-                `[data-bus="${busName}"]`
-            );
-
-
-        if (busElement) {
-
-            busElement.classList.toggle(
-                "muted",
-                data.muted === true
-            );
-
-        }
-
-    }
-
-
-    /*
-     * =========================================================
-     * RICEZIONE DATI DA ELECTRON
-     * =========================================================
-     */
-
-    window.blast.onAudioLevels((levels) => {
-
-
-        if (!levels) {
-            return;
-        }
-
-
-        /*
-         * Aggiorna tutti i bus
-         */
-
-        for (const bus of buses) {
-
-            updateBus(
-                bus,
-                levels[bus]
-            );
-
-        }
-
-    });
-
-</script>
-
+<script src="index.js" defer></script>
 
 </body>
 

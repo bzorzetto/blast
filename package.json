@@ -1,6 +1,6 @@
 {
   "name": "blast",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Bruno Live Automation SofTware",
   "keywords": [
     "Midi",
@@ -22,16 +22,27 @@
   "type": "module",
   "main": "electron/main.js",
   "scripts": {
-    "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron-forge start",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "dependencies": {
+    "electron-squirrel-startup": "^1.0.1",
     "fast-xml-parser": "^5.11.1",
     "jzz": "^1.9.6",
     "uiohook-napi": "^1.5.5",
     "ws": "^8.21.3"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.11.2",
+    "@electron-forge/maker-deb": "^7.11.2",
+    "@electron-forge/maker-rpm": "^7.11.2",
+    "@electron-forge/maker-squirrel": "^7.11.2",
+    "@electron-forge/maker-zip": "^7.11.2",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.11.2",
+    "@electron-forge/plugin-fuses": "^7.11.2",
+    "@electron/fuses": "^1.8.0",
     "electron": "^44.4.3"
   }
 }

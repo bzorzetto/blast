@@ -166,30 +166,10 @@ export default class BoseClient extends EventEmitter {
         }
     }
 
+    getAudioLevels(module){
+        this.send(`GL ${module}`);
+    }
     
-    //subscribePSTN() {
-    //    this.send(`SUB "GA "PSTN In 1">0>1"`);
-    //}
-
-    //pstnAnswerCall() {
-    //    this.send(`MA "PSTN In 1">4`);
-    //}
-
-    //pstnEndCall() {
-    //    this.send(`MA "PSTN In 1">3`);
-    //}
-
-    //pstnAnswerEndCall() {
-     
-    //    if (this.callStatus === "INCOMING") {
-    //        if (this.debug > 2) {console.log("Chiamata in arrivo, rispondo");}
-    //        this.pstnAnswerCall();
-    //    } else if (this.callStatus === "IN CALL") {
-    //        if (this.debug > 2) {console.log("Chiamata in corso, termino");} 
-    //        this.pstnEndCall();
-    //    }
-    //}
-
     setCallStatus(status) {
         this.callStatus = status;
     }

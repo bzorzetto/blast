@@ -1,4 +1,4 @@
-const debug = 4;  // false = disable, true or 1, 2, 3 set log verbosity   
+const debug = 3;  // false = disable, true or 1, 2, 3 set log verbosity   
 import fs from 'fs';
 import MidiManager from './midi/MidiManager.js';
 import VmixClient from './vmix/VmixClient.js';
@@ -15,6 +15,7 @@ import KeyboardManager from './kbd/KeyboardManager.js';
 import HomeAssistantClient from './ha/ha.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { devNull } from 'node:os';
 
 
 // ----------------------------//
@@ -120,7 +121,7 @@ const keyboard = new KeyboardManager();
 //const ha = new HomeAssistantClient(config.hosts.ha?.host || "127.0.0.1", config.hosts.ha?.port || 8123, config.hosts.ha?.haApiTokenBR || "", {protocol: 'http', debug: true});
 const ha = new HomeAssistantClient({
     url:  `http://${config.hosts.ha.host}:${config.hosts.ha.port}`,
-    token: `${config.hosts.ha?.haApiTokenBR}`
+    token: `${config.hosts.ha?.haApiToken}`
 })
 
 
@@ -425,7 +426,7 @@ bose.on("data", data => {
  
     const messages = data.split(";");  // Split the message into individual messages based on the semicolon delimiter
 
-    if (debug > 3) {console.log("Bose ===> :", messages)};
+    if (debug > 4) {console.log("Bose ===> :", messages)};
 
     messages.forEach(msg => {
         
@@ -463,7 +464,39 @@ bose.on("data", data => {
                 control.setState("bose", false);
             }
         });
-       
+
+        if (msg.match(/^GL [1-2]/)) {
+        
+            const channels = msg.match(/\[([a-f0-9]{1}|[a-f0-9]{2}),([a-f0-9]{1}|[a-f0-9]{2}),([a-f0-9]{1}|[a-f0-9]{2}),([a-f0-9]{1}|[a-f0-9]{2})\]/);
+            
+            let audioLevels = {};
+
+            if (msg.match(/^GL 1/)) {
+                audioLevels = {
+                    ch1: channels[1],
+                    ch2: channels[2],
+                    ch3: channels[3],
+                    ch4: channels[4],
+                    ch5: null,
+                    ch6: null,
+                    ch7: null,
+                    ch8: null
+                };
+            } else if (msg.match(/^GL 2/)) {
+                audioLevels = {
+                    ch1: null,
+                    ch2: null,
+                    ch3: null,
+                    ch4: null,
+                    ch5: channels[1],
+                    ch6: channels[2],
+                    ch7: channels[3],
+                    ch8: channels[4]
+                };
+            }
+            process.emit("blast:audioLevels", audioLevels);
+        }
+        
     });
     
 });
@@ -590,7 +623,9 @@ setInterval(() => {
 // vMix status request
 setInterval(() => {
     vmix.updateStatus();
-}, 200);
+    bose.getAudioLevels("1");
+    bose.getAudioLevels("2");
+}, 100);
 
 
 // Updae MIDI leds

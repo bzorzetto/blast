@@ -6,9 +6,11 @@ vendor/
 *.log
 dist/
 build/
+out/
 .DS_Store
 Thumbs.db
 
 # Ignore envinoment files
 .env
 config.json
+out/
