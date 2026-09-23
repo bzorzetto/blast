@@ -30,7 +30,7 @@ export default class BoseClient extends EventEmitter {
 
             this.connected = true;
 
-            if (this.debug > 3) {console.log("BOSE connesso");}
+            if (this.debug > 2) {console.log("BOSE connesso");}
 
             this.emit("connected");
 
@@ -46,7 +46,7 @@ export default class BoseClient extends EventEmitter {
 
             this.connected = false;
 
-            if (this.debug > 3) {console.log("BOSE disconnesso");}
+            if (this.debug > 2) {console.log("BOSE disconnesso");}
 
             this.emit("disconnected");
 
@@ -56,7 +56,7 @@ export default class BoseClient extends EventEmitter {
 
         this.socket.on('error', err => {
 
-            if (this.debug > 3) {console.log(err.message);}
+            if (this.debug > 2) {console.log(err.message);}
 
         });
 

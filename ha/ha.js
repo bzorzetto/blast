@@ -7,6 +7,7 @@ export default class HomeAssistantClient {
 
         this.url = options.url;
         this.token = options.token;
+        this.debug = false;
 
         if (!this.url) {
             throw new Error('Home Assistant URL non specificato');
@@ -671,10 +672,7 @@ export default class HomeAssistantClient {
 
             } catch (error) {
 
-                console.error(
-                    `Errore callback ${type}:`,
-                    error
-                );
+                if (this.debug > 3) {console.error(`Errore callback ${type}:`, error);}
             }
         }
     }
@@ -694,10 +692,7 @@ export default class HomeAssistantClient {
             return;
         }
 
-        console.log(
-            `Nuovo tentativo tra ` +
-            `${this.currentReconnectDelay / 1000}s`
-        );
+            if (this.debug > 2) {console.log(`Nuovo tentativo tra ` + `${this.currentReconnectDelay / 1000}s`);}
 
 
         this.reconnectTimer = setTimeout(
@@ -711,10 +706,7 @@ export default class HomeAssistantClient {
 
                 } catch (error) {
 
-                    console.error(
-                        'Riconnessione fallita:',
-                        error.message
-                    );
+                    if (this.debug > 3) {console.error('Riconnessione fallita:',error.message);}
 
                     this.scheduleReconnect();
                 }
@@ -749,6 +741,10 @@ export default class HomeAssistantClient {
     getNextId() {
 
         return this.messageId++;
+    }
+    
+    setDebug(level){
+        this.debug = level;
     }
 }
 
