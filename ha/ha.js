@@ -76,14 +76,14 @@ export default class HomeAssistantClient {
 
             this.manualDisconnect = false;
 
-            console.log(`Connessione a Home Assistant: ${this.wsUrl}`);
+            if (this.debug > 2) {console.log(`Connessione a Home Assistant: ${this.wsUrl}`);}
 
             this.ws = new WebSocket(this.wsUrl);
 
 
             this.ws.on('open', () => {
 
-                console.log('WebSocket Home Assistant connesso');
+                if (this.debug > 2) {console.log('WebSocket Home Assistant connesso');}
 
                 this.connected = true;
 
@@ -105,10 +105,7 @@ export default class HomeAssistantClient {
 
                 } catch (error) {
 
-                    console.error(
-                        'Errore parsing messaggio Home Assistant:',
-                        error
-                    );
+                    if (this.debug > 3) {console.error('Errore parsing messaggio Home Assistant:', error);}
 
                     this.emit('error', error);
                 }
@@ -123,7 +120,7 @@ export default class HomeAssistantClient {
                 this.authenticated = false;
                 this.eventSubscriptionId = null;
 
-                console.log('WebSocket Home Assistant disconnesso');
+                if (this.debug > 2) {console.log('WebSocket Home Assistant disconnesso');}
 
                 if (wasConnected) {
                     this.emit('disconnected');
@@ -137,10 +134,7 @@ export default class HomeAssistantClient {
 
             this.ws.on('error', (error) => {
 
-                console.error(
-                    'Errore WebSocket Home Assistant:',
-                    error.message
-                );
+                if (this.debug > 3) {console.error('Errore WebSocket Home Assistant:', error.message);}
 
                 this.emit('error', error);
 
@@ -224,7 +218,7 @@ export default class HomeAssistantClient {
                 access_token: this.token
             };
 
-            console.log('Autenticazione Home Assistant...');
+            if (this.debug > 2) {console.log('Autenticazione Home Assistant...');}
 
             this.ws.send(
                 JSON.stringify(message)
@@ -278,10 +272,7 @@ export default class HomeAssistantClient {
                 .then(() => this.subscribeEvents())
                 .catch(error => {
 
-                    console.error(
-                        'Errore autenticazione:',
-                        error
-                    );
+                    if (this.debug > 3) {console.error('Errore autenticazione:', error);}
 
                     this.emit('error', error);
                 });
@@ -424,10 +415,7 @@ export default class HomeAssistantClient {
 
                 } catch (error) {
 
-                    console.error(
-                        `Errore callback ${entityId}:`,
-                        error
-                    );
+                    if (this.debug > 3) {console.error(`Errore callback ${entityId}:`, error);}
                 }
             }
         }

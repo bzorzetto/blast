@@ -606,24 +606,21 @@ blast.on("switch_now", input => {
 // ----------------------------//
 ha.on('connected', () => {
 
-    console.log('Home Assistant connesso');
+    if (debug > 2) {console.log('Home Assistant connesso');}
 
 });
 
 
 ha.on('disconnected', () => {
 
-    console.log('Home Assistant disconnesso');
+    if (debug > 2) {console.log('Home Assistant disconnesso');}
 
 });
 
 
 ha.on('error', error => {
 
-    console.error(
-        'errore Home Assistant:',
-        error
-    );
+    if (debug > 3) {console.error('errore Home Assistant:', error);}
 
 });
 
