@@ -1,4 +1,3 @@
-const debug = 3;  // false = disable, true or 1, 2, 3 set log verbosity   
 import fs from 'fs';
 import MidiManager from './midi/MidiManager.js';
 import VmixClient from './vmix/VmixClient.js';
@@ -15,59 +14,129 @@ import KeyboardManager from './kbd/KeyboardManager.js';
 import HomeAssistantClient from './ha/ha.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { devNull } from 'node:os';
+import { app } from 'electron';
 
 
 // ----------------------------//
-// Preload config file         //
+// Configurazione
 // ----------------------------//
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const configFile = path.join(__dirname,'config.json');
+
+
+// Durante lo sviluppo:
+//     blast-devel/config.json
+//
+// Nell'applicazione pacchettizzata:
+//     %APPDATA%\BLAST\config.json
+
+const configFile = app.isPackaged
+    ? path.join(app.getPath('userData'), 'config.json')
+    : path.join(__dirname, 'config.json');
+
+
+// Configurazione di default distribuita con BLAST
+
+const defaultConfigFile = path.join(
+    __dirname,
+    'config.default.json'
+);
+
+
+console.log('BLAST: config file:', configFile);
 
 
 // ----------------------------//
-// Start Midi Engine           //
+// Start Midi Engine
 // ----------------------------//
+
 const midi = new MidiManager();
+
 const midiInputDevices = midi.getInputs();
 const midiOutputDevices = midi.getOutputs();
 
 
+// ----------------------------//
+// 1. Controllo configurazione
+// ----------------------------//
 
-// ----------------------------//
-// 1. Controllo configurazione //
-// ----------------------------//
 if (!fs.existsSync(configFile)) {
 
-    console.log("Nessun file config.json trovato.");
+    console.log("\nNessun file config.json trovato.");
 
     console.log("\nIngressi MIDI:");
+
     midiInputDevices.forEach(device => {
-       console.log("MIDI Input Device: ", device.name);
-   });
-   console.log("\nUscite MIDI:");
-   midiOutputDevices.forEach(device => {
-       console.log("MIDI Output Device: ", device.name);
-   }); 
+        console.log(
+            "MIDI Input Device: ",
+            device.name
+        );
+    });
 
-   console.log("\nConfigura i dispositivi nel file config.json.");
 
-   process.exit(0);
+    console.log("\nUscite MIDI:");
+
+    midiOutputDevices.forEach(device => {
+        console.log(
+            "MIDI Output Device: ",
+            device.name
+        );
+    });
+
+
+    // ----------------------------------------
+    // Crea configurazione utente
+    // ----------------------------------------
+
+    if (!fs.existsSync(defaultConfigFile)) {
+
+        console.error(
+            "\nERRORE: config.default.json non trovato."
+        );
+
+        console.error(
+            "Percorso cercato:",
+            defaultConfigFile
+        );
+
+        process.exit(1);
+    }
+
+
+    fs.copyFileSync(
+        defaultConfigFile,
+        configFile
+    );
+
+
+    console.log(
+        "\nCreato config.json dalla configurazione predefinita."
+    );
+
+    console.log(
+        "Percorso:",
+        configFile
+    );
 }
 
 
 // ----------------------------//
-// 2. Carica configurazione    //
+// 2. Carica configurazione
 // ----------------------------//
+
 const config = JSON.parse(
-    fs.readFileSync(configFile, 'utf8')
+    fs.readFileSync(
+        configFile,
+        'utf8'
+    )
 );
 
 
 // ----------------------------//
-// 3. Verifica dispositivi     //
+// 3. Verifica dispositivi
 // ----------------------------//
+
 const input = midi.findInput(
     config.midi.input
 );
@@ -76,25 +145,34 @@ const output = midi.findOutput(
     config.midi.output
 );
 
+
 if (!input) {
+
     console.error(
         `\nERRORE: Input MIDI "${config.midi.input}" non trovato.`
     );
+
     process.exit(1);
 }
 
+
 if (!output) {
+
     console.error(
         `\nERRORE: Output MIDI "${config.midi.output}" non trovato.`
     );
+
     process.exit(1);
 }
 
 
 // ----------------------------//
-// 4. Tutto OK                 //
+// 4. Tutto OK
 // ----------------------------//
-console.log("\nConfigurazione MIDI OK.");
+
+console.log(
+    "\nConfigurazione MIDI OK."
+);
 
 console.log(
     `Input  : ${input.name}`
@@ -104,10 +182,14 @@ console.log(
     `Output : ${output.name}`
 );
 
-midi.openInput(input.name); // ToDo: select midi source from a list of devices
-midi.openOutput(output.name);
 
+midi.openInput(
+    input.name
+);
 
+midi.openOutput(
+    output.name
+);
 
 // ----------------------------//
 // Connect to remote hosts     //
@@ -118,9 +200,8 @@ const mediaout = new MediaoutClient(config.hosts.mediaout?.host || "127.0.0.1", 
 const blast = new Blast();
 const dicaffeine = [];
 const keyboard = new KeyboardManager();
-//const ha = new HomeAssistantClient(config.hosts.ha?.host || "127.0.0.1", config.hosts.ha?.port || 8123, config.hosts.ha?.haApiTokenBR || "", {protocol: 'http', debug: true});
 const ha = new HomeAssistantClient({
-    url:  `http://${config.hosts.ha.host}:${config.hosts.ha.port}`,
+    url:  `http://${config.hosts.ha?.host || "127.0.0.1"}:${config.hosts.ha?.port || 8123}`,
     token: `${config.hosts.ha?.haApiToken}`
 })
 
@@ -135,9 +216,14 @@ async function haConnect(){
 
 haConnect();
 
-//Set debug level 
+
+// ----------------------------//
+// 4. Set Debug Level          //
+// ----------------------------//
+const debug = config?.debug.level || false; 
 bose.setDebug(debug);
 vmix.setDebug(debug);
+console.log("Debug level :", debug);
 
 
 // ----------------------------//

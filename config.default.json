@@ -1,4 +1,7 @@
-{
+{   
+    "debug": {
+        "level": 3
+    },
     "hosts": {
         "vmix": {
             "host": "127.0.0.1",
@@ -431,6 +434,18 @@
             "ledFeedBack": "blast",
             "mediaout": {
                 "function": "STOP"
+            }
+        }
+    },
+    "keyboard":{
+        "1": {
+            "name": "CTRL+F1",
+            "key": "CTRL+F1",
+            "ledFeedBack": "vmix",
+            "vmix": {
+                "type": "transition",
+                "input": 1,
+                "function": "TOGGLE_MUTE_CHANNEL"
             }
         }
     }
