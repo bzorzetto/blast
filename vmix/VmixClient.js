@@ -59,23 +59,6 @@ export default class VmixClient extends EventEmitter {
         try {
             const status = await this.getStatus();
         
-            //let inputs;
-
-            //if (Array.isArray(status.vmix.inputs)) {
-
-            //    inputs = Object.fromEntries(
-            //        status.vmix.inputs.map(input => [
-            //            input.number,
-            //            input
-            //        ])
-            //    );
-
-            //} else {
-
-            //    inputs = status.vmix.inputs;
-
-            //}
-
             this.emit("status", status);
 
         } catch (error) {

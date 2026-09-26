@@ -220,7 +220,7 @@ haConnect();
 // ----------------------------//
 // 4. Set Debug Level          //
 // ----------------------------//
-const debug = config?.debug.level || false; 
+const debug = config.debug?.level || false; 
 bose.setDebug(debug);
 vmix.setDebug(debug);
 ha.setDebug(debug);
