@@ -416,6 +416,7 @@ vmix.on("status", status => {
 
         const inputs = status.vmix.inputs.input;
         const busses = status.vmix.audio;
+        const recording = status.vmix.recording?.duration;
 
     try {
         midi.controls.forEach(control => {
@@ -476,7 +477,12 @@ vmix.on("status", status => {
                 } else if (activeInput && control.vmixChannel !== activeInput && (control.buttonActions.vmix.includes("WIPE") || control.buttonActions.vmix.includes("CUT"))) {
                     control.setState("vmix", false);
                 }
-                
+        // Gestione stato Recording
+                if (recording && control.buttonActions.vmix.includes("TOGGLE_RECORDING")) {
+                    control.setState("vmix", true);
+                } else if (!recording && control.buttonActions.vmix.includes("TOGGLE_RECORDING")) {
+                    control.setState("vmix", false);
+                }    
             }
         });
     } catch(error) {
