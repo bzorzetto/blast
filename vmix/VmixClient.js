@@ -186,6 +186,9 @@ class VmixClient extends EventEmitter {
             case "SET_OUTPUT4":
                 this.send(`FUNCTION SetOutput4 Input=${command.input}&Mix=1&Value=${command.value}`);
                 break;
+            case "TOGGLE_RECORDING":
+                this.send(`FUNCTION StartStopRecording`);
+                break;
             default:
                 console.log("Vmix Client: Unknown command type: " + command.type);
             }
